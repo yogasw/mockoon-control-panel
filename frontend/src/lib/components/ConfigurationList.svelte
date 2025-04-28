@@ -128,7 +128,7 @@
             {config.name}
           </h2>
           <p class="text-xs">
-            URL: <a href={config.url} class="text-blue-400 hover:underline" on:click|stopPropagation>{config.url}</a>
+            URL: <a href={config.url} class="text-blue-400 hover:underline" on:click|stopPropagation target="_blank">{config.url}</a>
           </p>
           <p class="text-xs">Port: {config.port}</p>
           <p class="text-xs">File: {config.configFile}</p>
