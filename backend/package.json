@@ -6,9 +6,8 @@
     "dev": "ts-node-dev --respawn  -r tsconfig-paths/register src/server.ts",
     "build": "tsc && tsc-alias",
     "start": "node dist/server.js",
-    "prisma:generate": "prisma generate",
-    "prisma:migrate": "prisma migrate deploy",
-    "prisma:push": "prisma db push"
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate deploy && prisma db push"
   },
   "keywords": [],
   "author": "",
