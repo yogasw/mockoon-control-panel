@@ -25,8 +25,17 @@ RUN npm run prisma:generate --prefix backend
 # -------- Stage 2: Production Stage --------
 FROM node:20
 
-# Install system tools needed
-RUN apt update && apt install -y traefik sqlite3
+# -------- Install System Tools & Traefik Binary --------
+# Build arguments
+ARG TRAEFIK_VERSION=2.10.7
+
+# Set architecture environment from container
+RUN apt update && apt install -y curl tar gzip sqlite3 \
+  && export ARCH=$(dpkg --print-architecture) \
+  && echo "Detected architecture: $ARCH" \
+  && curl -L "https://github.com/traefik/traefik/releases/download/v${TRAEFIK_VERSION}/traefik_v${TRAEFIK_VERSION}_linux_${ARCH}.tar.gz" \
+  | tar -xz -C /usr/local/bin --strip-components=1 traefik
+
 
 WORKDIR /app
 
