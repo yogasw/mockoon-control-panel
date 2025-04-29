@@ -29,7 +29,7 @@ export async function checkAndHandlePrisma(): Promise<void> {
 			console.log('Prisma migration check: Alias table exists');
 		}).catch(async (e) => {
 			console.log('Prisma migration check: Alias table does not exist, running migrations');
-			await execAsync('npm run db:migrate');
+			await execAsync('npm run db:migrate --prefix backend');
 		});
 	} catch (e) {
 		console.error('Error running Prisma migrations:', e);
