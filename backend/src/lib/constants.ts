@@ -16,8 +16,8 @@ export const SQLITE_PATH = path.resolve(CONFIGS_DIR, 'db', 'db.sqlite');
 
 // Server
 export const IS_DEBUG: string = 'false';
-export const SERVER_PORT = parseInt(process.env.PORT || '3500', 10);
-export const SERVER_HOSTNAME = process.env.HOSTNAME || '0.0.0.0';
+export const SERVER_PORT = parseInt(process.env.SERVER_PORT || '3600', 10);
+export const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || '0.0.0.0';
 export const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
 
 //Git
