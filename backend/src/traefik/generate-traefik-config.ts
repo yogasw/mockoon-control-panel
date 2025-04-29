@@ -1,9 +1,8 @@
-import { Alias, PrismaClient } from '@prisma/client';
+import { Alias } from '@prisma/client';
 import YAML from 'yaml';
 import fs from 'fs';
 import { TRAEFIK_DYNAMIC_CONFIG_PATH } from '@/lib/constants';
-
-const prisma = new PrismaClient();
+import { prisma } from '@/prisma';
 
 interface TraefikConfig {
 	http: {
@@ -17,7 +16,12 @@ interface TraefikConfig {
  * Always generate even if no aliases
  */
 export async function generateDynamicTraefikConfig(): Promise<void> {
-	const aliases: Alias[] = await prisma.alias.findMany();
+	let aliases: Alias[] = [];
+	try {
+		aliases = await prisma.alias.findMany();
+	} catch (error) {
+		console.error('Error fetching aliases:', error);
+	}
 
 	const config: TraefikConfig = {
 		http: {

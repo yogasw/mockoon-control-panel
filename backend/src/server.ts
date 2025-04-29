@@ -19,6 +19,7 @@ import process from 'node:process';
 import { generateStaticTraefikConfig } from '@/traefik/generateStaticTraefikConfig';
 import { generateDynamicTraefikConfig } from '@/traefik/generate-traefik-config';
 import { SyncConfigsToGit } from '@/git-sync/services/SyncConfigs';
+import { checkAndHandlePrisma } from '@/prisma';
 
 // Load environment variables
 config({ path: '../.env' });
@@ -126,6 +127,14 @@ const PORT = parseInt(process.env.PORT || '3500', 10);
 const HOSTNAME = process.env.HOSTNAME || '0.0.0.0';
 
 async function startServer() {
+
+	await SyncConfigsToGit().then(() => {
+		console.log('Sync to Git completed successfully');
+	}).catch(e => {
+		console.error('Error syncing to Git:', e);
+	});
+
+	await checkAndHandlePrisma()
 	await generateDynamicTraefikConfig().catch((e: any) => {
 		console.error('Error generating Traefik config:', e);
 		process.exit(1);
@@ -134,12 +143,6 @@ async function startServer() {
 	await generateStaticTraefikConfig().catch((e: any) => {
 		console.error('Error generating static Traefik config:', e);
 		process.exit(1);
-	});
-
-	SyncConfigsToGit().then(() => {
-		console.log('Sync to Git completed successfully');
-	}).catch(e => {
-		console.error('Error syncing to Git:', e);
 	});
 
 	try {

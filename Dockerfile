@@ -61,10 +61,6 @@ COPY --from=frontend-builder /app/frontend/build/ ./frontend/build/
 COPY --from=frontend-builder /app/frontend/package.json ./frontend/package.json
 COPY --from=frontend-builder /app/frontend/node_modules/ ./frontend/node_modules/
 
-# Copy other necessary project files
-COPY mockoon/ ./mockoon/
-COPY configs/ ./configs/
-
 # (Optional) Copy root package.json if you use global scripts
 COPY package.json ./
 
