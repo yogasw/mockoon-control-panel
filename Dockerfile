@@ -30,7 +30,8 @@ RUN apt update && apt install -y curl tar gzip sqlite3 \
   && export ARCH=$(dpkg --print-architecture) \
   && echo "Detected architecture: $ARCH" \
   && curl -L "https://github.com/traefik/traefik/releases/download/v${TRAEFIK_VERSION}/traefik_v${TRAEFIK_VERSION}_linux_${ARCH}.tar.gz" \
-  | tar -xz -C /usr/local/bin --strip-components=1 traefik
+  | tar -xz -C /usr/local/bin traefik \
+  && chmod +x /usr/local/bin/traefik
 
 
 WORKDIR /app
