@@ -7,3 +7,4 @@ export const LOGS_DIR = path.resolve(process.cwd(), 'logs');
 
 // Specific path for Traefik dynamic config
 export const TRAEFIK_DYNAMIC_CONFIG_PATH = path.resolve(CONFIGS_DIR, 'traefik', 'dynamic.yml');
+export const TRAEFIK_STATIC_CONFIG_PATH = path.resolve(CONFIGS_DIR, 'traefik', 'traefik.yml');

@@ -15,8 +15,9 @@ import { downloadConfigHandler } from '@/mocks/handler/downloadConfigHandler';
 import { healthCheckHandler } from '@/health/healthCheckHandler';
 import { SyncToGitHttpHandler } from '@/git-sync/handler/http';
 import { CONFIGS_DIR, LOGS_DIR, UPLOAD_DIR } from '@/lib/constants';
-import { generateTraefikConfig } from '@/traefik/generate-traefik-config';
 import process from 'node:process';
+import { generateStaticTraefikConfig } from '@/traefik/generateStaticTraefikConfig';
+import { generateDynamicTraefikConfig } from '@/traefik/generate-traefik-config';
 
 // Load environment variables
 config({ path: '../.env' });
@@ -90,10 +91,10 @@ ensureDirectoryExists(UPLOAD_DIR);
 ensureDirectoryExists(LOGS_DIR);
 
 // Routes
-app.get('/api/health', healthCheckHandler);
+app.get('/mock/api/health', healthCheckHandler);
 
 
-app.post('/api/auth', (req, res) => {
+app.post('/mock/api/auth', (req, res) => {
 	const { username, password } = req.body;
 	if (username && password) {
 		res.json({
@@ -109,23 +110,28 @@ app.post('/api/auth', (req, res) => {
 });
 
 // Protected routes
-app.use('/api/mock', apiKeyAuth);
-app.post('/api/mock/start', startMockHandler);
-app.post('/api/mock/stop', stopMockHandler);
-app.get('/api/mock/status', statusMockHandler);
-app.post('/api/mock/upload', upload.single('config'), uploadMockHandler);
-app.get('/api/mock/configs', listConfigsHandler);
-app.delete('/api/mock/configs/:filename', deleteConfigHandler);
-app.get('/api/mock/configs/:filename/download', downloadConfigHandler);
-app.post('/api/mock/sync', SyncToGitHttpHandler);
+app.use('/mock/api', apiKeyAuth);
+app.post('/mock/api/start', startMockHandler);
+app.post('/mock/api/stop', stopMockHandler);
+app.get('/mock/api/status', statusMockHandler);
+app.post('/mock/api/upload', upload.single('config'), uploadMockHandler);
+app.get('/mock/api/configs', listConfigsHandler);
+app.delete('/mock/api/configs/:filename', deleteConfigHandler);
+app.get('/mock/api/configs/:filename/download', downloadConfigHandler);
+app.post('/mock/api/sync', SyncToGitHttpHandler);
 
 // Start server
 const PORT = parseInt(process.env.PORT || '3500', 10);
 const HOSTNAME = process.env.HOSTNAME || '0.0.0.0';
 
 async function startServer() {
-	await generateTraefikConfig().catch((e: any) => {
+	await generateDynamicTraefikConfig().catch((e: any) => {
 		console.error('Error generating Traefik config:', e);
+		process.exit(1);
+	});
+
+	await generateStaticTraefikConfig().catch((e: any) => {
+		console.error('Error generating static Traefik config:', e);
 		process.exit(1);
 	});
 

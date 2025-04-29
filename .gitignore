@@ -69,3 +69,4 @@ configs/*
 configs/*.json
 configs/db/
 configs/db/db.sqlite
+configs/traefik/

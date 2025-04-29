@@ -5,29 +5,20 @@ import { TRAEFIK_DYNAMIC_CONFIG_PATH } from '@/lib/constants';
 
 const prisma = new PrismaClient();
 
-// Define TypeScript interface for Traefik dynamic configuration
 interface TraefikConfig {
 	http: {
-		routers: Record<string, {
-			rule: string;
-			service: string;
-		}>;
-		services: Record<string, {
-			loadBalancer: {
-				servers: Array<{ url: string }>;
-			};
-		}>;
+		routers: Record<string, { rule: string; service: string }>;
+		services: Record<string, { loadBalancer: { servers: Array<{ url: string }> } }>;
 	};
 }
 
 /**
- * Generate dynamic Traefik configuration based on Alias database records
+ * Generate dynamic Traefik config based on Alias mapping
+ * Always generate even if no aliases
  */
-export async function generateTraefikConfig(): Promise<void> {
-	// Fetch all alias mappings from the database
+export async function generateDynamicTraefikConfig(): Promise<void> {
 	const aliases: Alias[] = await prisma.alias.findMany();
 
-	// Initialize Traefik config structure
 	const config: TraefikConfig = {
 		http: {
 			routers: {},
@@ -35,7 +26,6 @@ export async function generateTraefikConfig(): Promise<void> {
 		}
 	};
 
-	// Loop through aliases and create corresponding routers and services
 	aliases.forEach(alias => {
 		config.http.routers[alias.alias] = {
 			rule: `PathPrefix(\`/${alias.alias}\`)`,
@@ -48,7 +38,6 @@ export async function generateTraefikConfig(): Promise<void> {
 		};
 	});
 
-	// Add a router and service for backend API (/mock endpoint)
 	config.http.routers['api'] = {
 		rule: 'PathPrefix(`/mock`)',
 		service: 'backend'
@@ -59,7 +48,6 @@ export async function generateTraefikConfig(): Promise<void> {
 		}
 	};
 
-	// Add a router and service for frontend static content
 	config.http.routers['frontend'] = {
 		rule: 'PathPrefix(`/`)',
 		service: 'frontend'
@@ -70,7 +58,6 @@ export async function generateTraefikConfig(): Promise<void> {
 		}
 	};
 
-	// Write the generated config into YAML file for Traefik
 	fs.writeFileSync(TRAEFIK_DYNAMIC_CONFIG_PATH, YAML.stringify(config));
-	console.log(`✅ Traefik dynamic config generated at ${TRAEFIK_DYNAMIC_CONFIG_PATH}`);
+	console.log(`✅ Dynamic traefik dynamic.yml generated at ${TRAEFIK_DYNAMIC_CONFIG_PATH} (aliases: ${aliases.length})`);
 }
