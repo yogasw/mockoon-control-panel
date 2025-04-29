@@ -92,7 +92,9 @@ const upload = multer({
 ensureDirectoryExists(CONFIGS_DIR);
 ensureDirectoryExists(UPLOAD_DIR);
 ensureDirectoryExists(LOGS_DIR);
-
+app.get('/', (req, res) => {
+	res.send('Server is running!');
+})
 // Routes
 app.get('/mock/api/health', healthCheckHandler);
 
