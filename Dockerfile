@@ -1,45 +1,28 @@
-# -------- Stage 1: Backend Build --------
-FROM node:20 AS backend-builder
+# -------- Stage 1: Build Stage (Backend + Frontend) --------
+FROM node:20 AS builder
 
-WORKDIR /app/backend
+WORKDIR /app
 
-# Set environment to production
-ENV NODE_ENV=production
+# Copy backend and frontend package files
+COPY backend/package.json backend/package-lock.json ./backend/
+COPY frontend/package.json frontend/package-lock.json ./frontend/
 
-# Copy backend package files and install dependencies
-COPY backend/package.json backend/package-lock.json ./
-RUN npm install --only=production
+# Install all dependencies (dev + prod)
+RUN npm install --prefix backend && npm install --prefix frontend
 
-# Copy backend source code
-COPY backend/ ./
+# Copy backend and frontend source code
+COPY backend/ ./backend/
+COPY frontend/ ./frontend/
 
-# Build backend TypeScript
-RUN npm run build
+# Build backend (TypeScript) and frontend (Vite)
+RUN npm run build --prefix backend
+RUN npm run build --prefix frontend
 
 # Generate Prisma Client
-RUN npm run prisma:generate
+RUN npm run prisma:generate --prefix backend
 
 
-# -------- Stage 2: Frontend Build --------
-FROM node:20 AS frontend-builder
-
-WORKDIR /app/frontend
-
-# Set environment to production
-ENV NODE_ENV=production
-
-# Copy frontend package files and install dependencies
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm install --only=production
-
-# Copy frontend source code
-COPY frontend/ ./
-
-# Build frontend (Svelte / Vite)
-RUN npm run build
-
-
-# -------- Stage 3: Production Runner --------
+# -------- Stage 2: Production Stage --------
 FROM node:20
 
 # Install system tools needed
@@ -47,21 +30,26 @@ RUN apt update && apt install -y traefik sqlite3
 
 WORKDIR /app
 
-# Set environment for production at runtime
+# Set environment for production
 ENV NODE_ENV=production
 
-# Copy backend build and necessary files
-COPY --from=backend-builder /app/backend/dist/ ./backend/dist/
-COPY --from=backend-builder /app/backend/package.json ./backend/package.json
-COPY --from=backend-builder /app/backend/node_modules/ ./backend/node_modules/
-COPY --from=backend-builder /app/backend/prisma/ ./backend/prisma/
+# Install only production dependencies
+COPY backend/package.json backend/package-lock.json ./backend/
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+RUN npm install --prefix backend --only=production && npm install --prefix frontend --only=production
+
+# Copy backend build and Prisma schema
+COPY --from=builder /app/backend/dist/ ./backend/dist/
+COPY --from=builder /app/backend/prisma/ ./backend/prisma/
 
 # Copy frontend build
-COPY --from=frontend-builder /app/frontend/build/ ./frontend/build/
-COPY --from=frontend-builder /app/frontend/package.json ./frontend/package.json
-COPY --from=frontend-builder /app/frontend/node_modules/ ./frontend/node_modules/
+COPY --from=builder /app/frontend/build/ ./frontend/build/
 
-# (Optional) Copy root package.json if you use global scripts
+# Copy mockoon and configs
+COPY mockoon/ ./mockoon/
+COPY configs/ ./configs/
+
+# (Optional) Copy root package.json if needed
 COPY package.json ./
 
 # Expose Traefik default port
