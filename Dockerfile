@@ -63,6 +63,6 @@ COPY package.json ./
 EXPOSE 80
 
 # Start services
-CMD traefik & \
+CMD traefik --configFile=/app/configs/traefik/traefik.yml & \
     node backend/dist/server.js & \
     npx serve -s frontend/build -l 3005

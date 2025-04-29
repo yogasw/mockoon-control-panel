@@ -1,7 +1,7 @@
 import { Alias } from '@prisma/client';
 import YAML from 'yaml';
 import fs from 'fs';
-import { TRAEFIK_DYNAMIC_CONFIG_PATH } from '@/lib/constants';
+import { SERVER_PORT, TRAEFIK_DYNAMIC_CONFIG_PATH } from '@/lib/constants';
 import { prisma } from '@/prisma';
 
 interface TraefikConfig {
@@ -48,7 +48,7 @@ export async function generateDynamicTraefikConfig(): Promise<void> {
 	};
 	config.http.services['backend'] = {
 		loadBalancer: {
-			servers: [{ url: 'http://localhost:3000' }]
+			servers: [{ url: `http://localhost:${SERVER_PORT}` }]
 		}
 	};
 
