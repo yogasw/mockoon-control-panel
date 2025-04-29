@@ -3,16 +3,12 @@ FROM node:20 AS builder
 
 WORKDIR /app
 
-# Copy backend and frontend package files
-COPY backend/package.json backend/package-lock.json ./backend/
-COPY frontend/package.json frontend/package-lock.json ./frontend/
-
-# Install all dependencies (dev + prod)
-RUN npm install --prefix backend && npm install --prefix frontend
-
 # Copy backend and frontend source code
 COPY backend/ ./backend/
 COPY frontend/ ./frontend/
+
+# Install all dependencies (dev + prod)
+RUN npm install --prefix backend && npm install --prefix frontend
 
 # Build backend (TypeScript) and frontend (Vite)
 RUN npm run build --prefix backend
@@ -42,14 +38,16 @@ WORKDIR /app
 # Set environment for production
 ENV NODE_ENV=production
 
+# Copy Prisma schema
+COPY --from=builder /app/backend/src/prisma/schema.prisma ./backend/src/prisma/schema.prisma
+
 # Install only production dependencies
 COPY backend/package.json backend/package-lock.json ./backend/
 COPY frontend/package.json frontend/package-lock.json ./frontend/
 RUN npm install --prefix backend --only=production && npm install --prefix frontend --only=production
 
-# Copy backend build and Prisma schema
+# Copy backend build
 COPY --from=builder /app/backend/dist/ ./backend/dist/
-COPY --from=builder /app/backend/prisma/ ./backend/prisma/
 
 # Copy frontend build
 COPY --from=builder /app/frontend/build/ ./frontend/build/

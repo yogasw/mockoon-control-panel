@@ -2,6 +2,7 @@
   "name": "backend",
   "main": "dist/server.js",
   "scripts": {
+    "postinstall": "npx prisma generate",
     "dev": "ts-node-dev --respawn  -r tsconfig-paths/register src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
