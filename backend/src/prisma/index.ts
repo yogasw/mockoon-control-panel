@@ -2,9 +2,10 @@ import { PrismaClient } from '@prisma/client';
 import * as console from 'node:console';
 import { exec } from 'child_process';
 import util from 'util';
+import { IS_DEBUG } from '@/lib/constants';
 
 const config = {};
-if (process.env.IS_DEBUG == 'true') {
+if (IS_DEBUG == 'true') {
 	// @ts-ignore
 	config['log'] = ['query', 'info', 'warn'];
 }

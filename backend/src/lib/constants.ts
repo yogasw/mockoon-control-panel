@@ -1,4 +1,5 @@
 import path from 'path';
+import process from 'node:process';
 
 // Automatically resolve absolute path to configs directory
 export const CONFIGS_DIR = path.resolve(process.cwd(), '../configs');
@@ -11,4 +12,18 @@ export const TRAEFIK_STATIC_CONFIG_PATH = path.resolve(CONFIGS_DIR, 'traefik', '
 
 
 // Define the path to your sqlite database
-export const SQLITE_PATH = path.resolve(CONFIGS_DIR,'db','db.sqlite');
+export const SQLITE_PATH = path.resolve(CONFIGS_DIR, 'db', 'db.sqlite');
+
+// Server
+export const IS_DEBUG: string = 'false';
+export const SERVER_PORT = parseInt(process.env.PORT || '3500', 10);
+export const SERVER_HOSTNAME = process.env.HOSTNAME || '0.0.0.0';
+export const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+
+//Git
+export const GIT_URL = process.env.GIT_URL || '';
+export const GIT_BRANCH = process.env.BRANCH || 'main';
+export const SSH_KEY = process.env.SSH_KEY || '';
+
+// AUTH
+export const API_KEY = process.env.API_KEY || 'admin:root';

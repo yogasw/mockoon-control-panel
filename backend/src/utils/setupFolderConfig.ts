@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { CONFIGS_DIR } from '@/lib/constants';
 
-export async function EnsureRequiredFolders() {
+export async function EnsureRequiredFoldersAndEnv() {
 	const foldersToCheck = [
 		CONFIGS_DIR,
 		path.join(CONFIGS_DIR, '.ssh'),
@@ -16,4 +16,11 @@ export async function EnsureRequiredFolders() {
 			console.log(`Created folder: ${folder}`);
 		}
 	}
+
+	//check DATABASE_URL exists or not in process
+	if (!process.env.DATABASE_URL) {
+		process.env.DATABASE_URL = `file:${path.join(CONFIGS_DIR, 'db')}/db.sqlite`;
+		console.log(`DATABASE_URL not found. Using default: CONFIG_DIR/db/db.sqlite`);
+	}
+
 }

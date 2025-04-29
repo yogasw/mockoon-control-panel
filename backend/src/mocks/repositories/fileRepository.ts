@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { ensureDirectoryExists, formatFileSize } from '@/utils/fileUtils';
-import process from 'node:process';
 import { mockInstanceRepository } from '@/mocks/repositories/mockInstanceRepository';
-import { CONFIGS_DIR, UPLOAD_DIR } from '@/lib/constants';
+import { CONFIGS_DIR, SERVER_HOSTNAME, UPLOAD_DIR } from '@/lib/constants';
 
 class FileRepository {
 	private configsDir: string;
@@ -36,7 +35,7 @@ class FileRepository {
 						name: fileData?.name,
 						configFile: file,
 						port: fileData?.port,
-						url: `http://${process.env.HOSTNAME}:${fileData.port}`,
+						url: `http://${SERVER_HOSTNAME}:${fileData.port}`,
 						size: formatFileSize(stats.size),
 						modified: stats.mtime,
 						inUse: Array.from(mockInstanceRepository.getAll().values()).some(

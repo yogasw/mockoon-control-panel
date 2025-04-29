@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { API_KEY } from '@/lib/constants';
 
 export function apiKeyAuth(req: Request, res: Response, next: NextFunction) {
 	const authHeader = req.headers.authorization;
@@ -15,7 +16,7 @@ export function apiKeyAuth(req: Request, res: Response, next: NextFunction) {
 	const [username, password] = credentials.split(':');
 
 	// Get expected credentials from environment variable
-	const [expectedUsername, expectedPassword] = (process.env.API_KEY || '').split(':');
+	const [expectedUsername, expectedPassword] = (API_KEY).split(':');
 
 	if (!username || !password || !expectedUsername || !expectedPassword) {
 		return res.status(401).json({

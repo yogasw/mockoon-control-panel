@@ -14,13 +14,13 @@ import { uploadMockHandler } from '@/mocks/handler/uploadMockHandler';
 import { downloadConfigHandler } from '@/mocks/handler/downloadConfigHandler';
 import { healthCheckHandler } from '@/health/healthCheckHandler';
 import { SyncToGitHttpHandler } from '@/git-sync/handler/http';
-import { CONFIGS_DIR, LOGS_DIR, UPLOAD_DIR } from '@/lib/constants';
+import { CONFIGS_DIR, CORS_ORIGIN, LOGS_DIR, SERVER_HOSTNAME, SERVER_PORT, UPLOAD_DIR } from '@/lib/constants';
 import process from 'node:process';
 import { generateStaticTraefikConfig } from '@/traefik/generateStaticTraefikConfig';
 import { generateDynamicTraefikConfig } from '@/traefik/generate-traefik-config';
 import { SyncConfigsToGit } from '@/git-sync/services/SyncConfigs';
 import { checkAndHandlePrisma } from '@/prisma';
-import { EnsureRequiredFolders } from '@/utils/setupFolderConfig';
+import { EnsureRequiredFoldersAndEnv } from '@/utils/setupFolderConfig';
 
 // Load environment variables
 config({ path: '../.env' });
@@ -43,7 +43,7 @@ app.use((req, res, next) => {
 
 // CORS configuration
 const corsOptions: cors.CorsOptions = {
-	origin: process.env.CORS_ORIGIN || '*',
+	origin: CORS_ORIGIN,
 	methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
 	credentials: true,
 	optionsSuccessStatus: 204,
@@ -94,7 +94,7 @@ ensureDirectoryExists(UPLOAD_DIR);
 ensureDirectoryExists(LOGS_DIR);
 app.get('/', (req, res) => {
 	res.send('Server is running!');
-})
+});
 // Routes
 app.get('/mock/api/health', healthCheckHandler);
 
@@ -126,11 +126,9 @@ app.get('/mock/api/configs/:filename/download', downloadConfigHandler);
 app.post('/mock/api/sync', SyncToGitHttpHandler);
 
 // Start server
-const PORT = parseInt(process.env.PORT || '3500', 10);
-const HOSTNAME = process.env.HOSTNAME || '0.0.0.0';
 
 async function startServer() {
-	await EnsureRequiredFolders();
+	await EnsureRequiredFoldersAndEnv();
 	await SyncConfigsToGit().then(() => {
 		console.log('Sync to Git completed successfully');
 	}).catch(e => {
@@ -156,8 +154,8 @@ async function startServer() {
 			process.exit(1);
 		}
 
-		app.listen(PORT, HOSTNAME, () => {
-			console.log(`Server is running on http://${HOSTNAME}:${PORT}`);
+		app.listen(SERVER_PORT, SERVER_HOSTNAME, () => {
+			console.log(`Server is running on http://${SERVER_HOSTNAME}:${SERVER_PORT}`);
 		});
 	} catch (error) {
 		console.error('Error starting server:', error);
