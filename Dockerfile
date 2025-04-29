@@ -15,7 +15,7 @@ RUN npm run build --prefix backend
 RUN npm run build --prefix frontend
 
 # Generate Prisma Client
-RUN npm run prisma:generate --prefix backend
+RUN npm run db:generate --prefix backend
 
 
 # -------- Stage 2: Production Stage --------
