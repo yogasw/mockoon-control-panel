@@ -47,6 +47,9 @@ COPY backend/package.json backend/package-lock.json ./backend/
 COPY frontend/package.json frontend/package-lock.json ./frontend/
 RUN npm install --prefix backend --only=production && npm install --prefix frontend --only=production
 
+# Install mockoon CLI
+RUN npm install -g @mockoon/cli
+
 # Copy backend build
 COPY --from=builder /app/backend/dist/ ./backend/dist/
 
