@@ -66,3 +66,5 @@ backend/configs/*
 .idea/vcs.xml
 
 .svelte-kit/
+
+/configs/db/db.sqlite
