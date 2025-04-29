@@ -45,10 +45,6 @@ COPY --from=builder /app/backend/prisma/ ./backend/prisma/
 # Copy frontend build
 COPY --from=builder /app/frontend/build/ ./frontend/build/
 
-# Copy mockoon and configs
-COPY mockoon/ ./mockoon/
-COPY configs/ ./configs/
-
 # (Optional) Copy root package.json if needed
 COPY package.json ./
 
