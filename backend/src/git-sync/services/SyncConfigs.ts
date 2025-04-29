@@ -2,9 +2,10 @@ import path from "path";
 import process from "node:process";
 import simpleGit from "simple-git";
 import fs from "fs";
+import { CONFIGS_DIR } from '@/lib/constants';
 
 export async function SyncConfigsToGit(): Promise<Error | null> {
-    const configDir = path.join(process.cwd(), process.env.CONFIGS_DIR || 'configs')
+    const configDir = CONFIGS_DIR
     const git = simpleGit(configDir);
     const gitBranch = process.env.BRANCH || 'main';
 

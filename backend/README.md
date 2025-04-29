@@ -22,9 +22,6 @@ Create a `.env` file in the root directory with the following variables:
 ```env
 PORT=3500
 API_KEY=supersecretapikey
-UPLOAD_DIR=uploads
-CONFIGS_DIR=configs
-LOGS_DIR=logs
 HOSTNAME=0.0.0.0
 LATENCY=0
 CORS_ORIGIN=*

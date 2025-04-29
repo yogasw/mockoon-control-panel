@@ -15,6 +15,7 @@ import { uploadMockHandler } from '@/mocks/handler/uploadMockHandler';
 import { downloadConfigHandler } from '@/mocks/handler/downloadConfigHandler';
 import { healthCheckHandler } from '@/health/healthCheckHandler';
 import { SyncToGitHttpHandler } from '@/git-sync/handler/http';
+import { CONFIGS_DIR, LOGS_DIR, UPLOAD_DIR } from '@/lib/constants';
 
 // Load environment variables
 config({ path: '../.env' });
@@ -59,7 +60,7 @@ app.options('*', cors(corsOptions));
 // Configure multer for file uploads
 const storage = multer.diskStorage({
 	destination: (req: Express.Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
-		const uploadDir = path.join(process.cwd(), process.env.UPLOAD_DIR || 'uploads');
+		const uploadDir = UPLOAD_DIR
 		ensureDirectoryExists(uploadDir);
 		cb(null, uploadDir);
 	},
@@ -83,9 +84,9 @@ const upload = multer({
 });
 
 // Ensure required directories exist
-ensureDirectoryExists(path.join(process.cwd(), process.env.CONFIGS_DIR || 'configs'));
-ensureDirectoryExists(path.join(process.cwd(), process.env.UPLOAD_DIR || 'uploads'));
-ensureDirectoryExists(path.join(process.cwd(), process.env.LOGS_DIR || 'logs'));
+ensureDirectoryExists(CONFIGS_DIR);
+ensureDirectoryExists(UPLOAD_DIR);
+ensureDirectoryExists(LOGS_DIR);
 
 // Routes
 app.get('/api/health', healthCheckHandler);
