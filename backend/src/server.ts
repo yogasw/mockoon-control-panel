@@ -18,6 +18,7 @@ import { CONFIGS_DIR, LOGS_DIR, UPLOAD_DIR } from '@/lib/constants';
 import process from 'node:process';
 import { generateStaticTraefikConfig } from '@/traefik/generateStaticTraefikConfig';
 import { generateDynamicTraefikConfig } from '@/traefik/generate-traefik-config';
+import { SyncConfigsToGit } from '@/git-sync/services/SyncConfigs';
 
 // Load environment variables
 config({ path: '../.env' });
@@ -133,6 +134,12 @@ async function startServer() {
 	await generateStaticTraefikConfig().catch((e: any) => {
 		console.error('Error generating static Traefik config:', e);
 		process.exit(1);
+	});
+
+	SyncConfigsToGit().then(() => {
+		console.log('Sync to Git completed successfully');
+	}).catch(e => {
+		console.error('Error syncing to Git:', e);
 	});
 
 	try {
