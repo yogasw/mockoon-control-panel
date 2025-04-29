@@ -1,0 +1,14 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL") // points to the sqlite file
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Alias {
+  id    Int    @id @default(autoincrement())
+  alias String @unique
+  port  Int
+}

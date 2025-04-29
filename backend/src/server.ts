@@ -1,7 +1,6 @@
 import express from 'express';
 import cors from 'cors';
 import multer from 'multer';
-import path from 'path';
 import { config } from 'dotenv';
 import { checkMockoonCli } from '@/utils/cliChecker';
 import { apiKeyAuth } from '@/middlewares/apiKeyAuth';
@@ -16,6 +15,8 @@ import { downloadConfigHandler } from '@/mocks/handler/downloadConfigHandler';
 import { healthCheckHandler } from '@/health/healthCheckHandler';
 import { SyncToGitHttpHandler } from '@/git-sync/handler/http';
 import { CONFIGS_DIR, LOGS_DIR, UPLOAD_DIR } from '@/lib/constants';
+import { generateTraefikConfig } from '@/traefik/generate-traefik-config';
+import process from 'node:process';
 
 // Load environment variables
 config({ path: '../.env' });
@@ -60,7 +61,7 @@ app.options('*', cors(corsOptions));
 // Configure multer for file uploads
 const storage = multer.diskStorage({
 	destination: (req: Express.Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
-		const uploadDir = UPLOAD_DIR
+		const uploadDir = UPLOAD_DIR;
 		ensureDirectoryExists(uploadDir);
 		cb(null, uploadDir);
 	},
@@ -123,6 +124,11 @@ const PORT = parseInt(process.env.PORT || '3500', 10);
 const HOSTNAME = process.env.HOSTNAME || '0.0.0.0';
 
 async function startServer() {
+	await generateTraefikConfig().catch((e: any) => {
+		console.error('Error generating Traefik config:', e);
+		process.exit(1);
+	});
+
 	try {
 		// Check if mockoon-cli is available
 		const mockoonCliAvailable = await checkMockoonCli();
