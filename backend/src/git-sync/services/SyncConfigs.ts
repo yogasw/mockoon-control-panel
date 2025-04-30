@@ -12,8 +12,19 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 
 	// Check and set Git user.name and user.email
 	try {
-		const userName = execSync('git config --global user.name', { encoding: 'utf-8' }).trim();
-		const userEmail = execSync('git config --global user.email', { encoding: 'utf-8' }).trim();
+		let userName = undefined;
+		let userEmail = undefined;
+		try {
+			userName = execSync('git config --global user.name', { encoding: 'utf-8' }).trim();
+		} catch (e) {
+			console.log('failed to get git name...');
+		}
+
+		try {
+			userEmail = execSync('git config --global user.email', { encoding: 'utf-8' }).trim();
+		} catch (e) {
+			console.log('failed to get git email...');
+		}
 
 		if (!userName) {
 			console.log('Git user.name is not set. Setting it now...');
