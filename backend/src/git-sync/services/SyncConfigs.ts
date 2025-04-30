@@ -34,11 +34,12 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 
 	// Initialize Git if not already initialized
 	if (!fs.existsSync(gitDir)) {
-		// Configure Git
-		await git.addConfig('core.sshCommand', `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`);
 
 		console.log('Initializing Git repository...');
 		await git.init();
+
+		// Configure Git
+		await git.addConfig('core.sshCommand', `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`);
 
 		// Add remote
 		console.log('Adding remote repository...');
