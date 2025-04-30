@@ -92,7 +92,7 @@ const upload = multer({
 ensureDirectoryExists(CONFIGS_DIR);
 ensureDirectoryExists(UPLOAD_DIR);
 ensureDirectoryExists(LOGS_DIR);
-app.get('/', (req, res) => {
+app.get('/mock', (req, res) => {
 	res.send('Server is running!');
 });
 // Routes

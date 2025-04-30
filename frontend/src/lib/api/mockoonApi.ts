@@ -1,8 +1,6 @@
 import { getLocalStorage, removeAuthLocalStorage } from '$lib/utils/localStorage';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3600';
-
 interface AuthCredentials {
 	username: string;
 	password: string;
@@ -35,7 +33,7 @@ interface Log {
 
 // Create axios instance with default config
 const api = axios.create({
-	baseURL: API_URL + '/mock/api',
+	baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3600/mock/api',
 	headers: {
 		'Content-Type': 'application/json'
 	}
