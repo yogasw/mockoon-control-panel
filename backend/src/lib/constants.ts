@@ -19,6 +19,8 @@ export const IS_DEBUG: string = 'false';
 export const SERVER_PORT = parseInt(process.env.SERVER_PORT || '3600', 10);
 export const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || '0.0.0.0';
 export const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
+export const PROXY_MODE = process.env.PROXY_MODE === 'true' || false;
+
 
 //Git
 export const GIT_URL = process.env.GIT_URL || '';
@@ -27,3 +29,4 @@ export const SSH_KEY = process.env.SSH_KEY || '';
 
 // AUTH
 export const API_KEY = process.env.API_KEY || 'admin:root';
+
