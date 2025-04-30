@@ -26,6 +26,8 @@ export const PROXY_MODE = process.env.PROXY_MODE === 'true' || false;
 export const GIT_URL = process.env.GIT_URL || '';
 export const GIT_BRANCH = process.env.BRANCH || 'main';
 export const SSH_KEY = process.env.SSH_KEY || '';
+export const GIT_NAME = process.env.GIT_NAME || 'Mockoon Control Panel';
+export const GIT_EMAIL = process.env.GIT_EMAIL || 'noreply@example.com';
 
 // AUTH
 export const API_KEY = process.env.API_KEY || 'admin:root';

@@ -37,9 +37,13 @@
     syncStatus.set({ isLoading: true, isSuccess: false, error: null });
 
     try {
-      await syncToGit();
+      await syncToGit().then(()=>{
+        toast.success('Successfully synced to Git');
+      }).catch((err) => {
+        let message = err?.response?.data?.message || 'Failed to sync to Git';
+        toast.error(message);
+      });
       syncStatus.set({ isLoading: false, isSuccess: true, error: null });
-      toast.success('Successfully synced to Git');
     } catch (err) {
       syncStatus.set({ isLoading: false, isSuccess: false, error: 'Failed to sync to Git' });
       toast.error('Failed to sync to Git')
