@@ -7,7 +7,7 @@
     "build": "tsc && tsc-alias",
     "start": "node dist/server.js",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma db push",
+    "db:migrate": "prisma migrate deploy & prisma db push",
     "setup": "ts-node-dev -r tsconfig-paths/register src/scripts/run-generate-config.ts"
   },
   "keywords": [],
