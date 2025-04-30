@@ -1,12 +1,33 @@
 import path from 'path';
 import simpleGit from 'simple-git';
 import fs from 'fs';
-import { CONFIGS_DIR, GIT_BRANCH, GIT_URL, SSH_KEY } from '@/lib/constants';
+import { CONFIGS_DIR, GIT_BRANCH, GIT_EMAIL, GIT_NAME, GIT_URL, SSH_KEY } from '@/lib/constants';
+import { execSync } from 'child_process';
 
 export async function SyncConfigsToGit(): Promise<Error | null> {
 	const configDir = CONFIGS_DIR;
 	const git = simpleGit(configDir);
 	const gitBranch = GIT_BRANCH;
+
+
+	// Check and set Git user.name and user.email
+	try {
+		const userName = execSync('git config --global user.name', { encoding: 'utf-8' }).trim();
+		const userEmail = execSync('git config --global user.email', { encoding: 'utf-8' }).trim();
+
+		if (!userName) {
+			console.log('Git user.name is not set. Setting it now...');
+			execSync(`git config --global user.name "${GIT_NAME}"`);
+		}
+
+		if (!userEmail) {
+			console.log('Git user.email is not set. Setting it now...');
+			execSync(`git config --global user.email "${GIT_EMAIL}"`);
+		}
+	} catch (error) {
+		console.error('Error checking or setting Git configuration:', error);
+		return new Error('Failed to check or set Git user.name and user.email.');
+	}
 
 	if (!GIT_URL || !SSH_KEY) {
 		const missingVars = [];
