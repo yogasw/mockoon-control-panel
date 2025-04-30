@@ -13,6 +13,9 @@ RUN npm install --prefix backend && npm install --prefix frontend
 # Set environment
 ENV VITE_API_BASE_URL "/mock/"
 
+# Setup Folder and Configurations
+RUN npm run setup --prefix backend
+
 # Build backend (TypeScript) and frontend (Vite)
 RUN npm run build --prefix backend
 RUN npm run build --prefix frontend

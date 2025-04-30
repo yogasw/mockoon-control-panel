@@ -15,12 +15,14 @@ interface TraefikConfig {
  * Generate dynamic Traefik config based on Alias mapping
  * Always generate even if no aliases
  */
-export async function generateDynamicTraefikConfig(): Promise<void> {
+export async function generateDynamicTraefikConfig(isFirstInit = false): Promise<void> {
 	let aliases: Alias[] = [];
-	try {
-		aliases = await prisma.alias.findMany();
-	} catch (error) {
-		console.error('Error fetching aliases:', error);
+	if (!isFirstInit) {
+		try {
+			aliases = await prisma.alias.findMany();
+		} catch (error) {
+			console.error('Error fetching aliases:', error);
+		}
 	}
 
 	const config: TraefikConfig = {
