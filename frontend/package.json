@@ -1,5 +1,5 @@
 {
-	"name": "mockoon-control-panel",
+	"name": "frontend",
 	"private": true,
 	"version": "0.0.1",
 	"type": "module",
@@ -15,7 +15,7 @@
 	},
 	"devDependencies": {
 		"@neoconfetti/svelte": "^2.0.0",
-		"@sveltejs/adapter-auto": "^6.0.0",
+		"@sveltejs/adapter-static": "^3.0.8",
 		"@sveltejs/kit": "^2.16.0",
 		"@sveltejs/vite-plugin-svelte": "^5.0.0",
 		"autoprefixer": "^10.4.21",
@@ -27,5 +27,8 @@
 		"tailwindcss": "^3.3.5",
 		"typescript": "^5.0.0",
 		"vite": "^6.2.6"
+	},
+	"dependencies": {
+		"axios": "^1.9.0"
 	}
 }

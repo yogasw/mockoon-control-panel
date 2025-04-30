@@ -59,10 +59,14 @@ pids/
 
 # Diagnostic reports
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
-/backend/configs/*.json
 /backend/uploads/*.json
 .ssh/*
-backend/configs/*
 .idea/vcs.xml
 
 .svelte-kit/
+
+configs/*
+configs/*.json
+configs/db/
+configs/db/db.sqlite
+configs/traefik/

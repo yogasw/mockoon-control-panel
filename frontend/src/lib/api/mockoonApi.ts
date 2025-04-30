@@ -1,8 +1,6 @@
 import { getLocalStorage, removeAuthLocalStorage } from '$lib/utils/localStorage';
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
-
 interface AuthCredentials {
 	username: string;
 	password: string;
@@ -35,7 +33,7 @@ interface Log {
 
 // Create axios instance with default config
 const api = axios.create({
-	baseURL: API_URL,
+	baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:3600/mock/api',
 	headers: {
 		'Content-Type': 'application/json'
 	}
@@ -69,17 +67,17 @@ api.interceptors.response.use(
 );
 
 export const getMockStatus = async (): Promise<Config[]> => {
-	const response = await api.get('/api/mock/status');
+	const response = await api.get('/status');
 	return response.data.data;
 };
 
 export const getConfigs = async (): Promise<Config[]> => {
-	const response = await api.get('/api/mock/configs');
+	const response = await api.get('/configs');
 	return response.data.data;
 };
 
 export const uploadConfig = async (formData: FormData): Promise<any> => {
-	const response = await api.post('/api/mock/upload', formData, {
+	const response = await api.post('/upload', formData, {
 		headers: {
 			'Content-Type': 'multipart/form-data'
 		}
@@ -88,11 +86,11 @@ export const uploadConfig = async (formData: FormData): Promise<any> => {
 };
 
 export const downloadConfig = async (filename: string): Promise<any> => {
-	return await api.get(`/api/mock/configs/${filename}/download`);
+	return await api.get(`/configs/${filename}/download`);
 };
 
 export const startMockServer = async (port: number, configFile: string, uuid: string): Promise<any> => {
-	const response = await api.post('/api/mock/start', {
+	const response = await api.post('/start', {
 		uuid,
 		port,
 		configFile
@@ -101,24 +99,24 @@ export const startMockServer = async (port: number, configFile: string, uuid: st
 };
 
 export const stopMockServer = async (port: number): Promise<any> => {
-	const response = await api.post('/api/mock/stop', {
+	const response = await api.post('/stop', {
 		port
 	});
 	return response.data;
 };
 
 export const deleteConfig = async (filename: string): Promise<any> => {
-	const response = await api.delete(`/api/mock/configs/${filename}`);
+	const response = await api.delete(`/configs/${filename}`);
 	return response.data;
 };
 
 export const syncToGit = async (): Promise<any> => {
-	const response = await api.post('/api/mock/sync');
+	const response = await api.post('/sync');
 	return response.data;
 };
 
 export const login = async (credentials: AuthCredentials): Promise<boolean> => {
-	const response = await api.post('/api/auth', credentials);
+	const response = await api.post('/auth', credentials);
 	if (response.data.success) {
 		localStorage.setItem('auth', JSON.stringify({
 			username: credentials.username,
@@ -129,6 +127,6 @@ export const login = async (credentials: AuthCredentials): Promise<boolean> => {
 };
 
 export const getConfigDetails = async (uuid: string): Promise<Config> => {
-	const response = await api.get(`/api/mock/configs/${uuid}`);
+	const response = await api.get(`/configs/${uuid}`);
 	return response.data.data;
 };
