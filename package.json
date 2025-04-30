@@ -1,6 +1,6 @@
 {
   "name": "mockoon-control-panel",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Mockoon Control Panel",
   "scripts": {
     "backend:dev": "npm run dev --prefix backend",
