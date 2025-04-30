@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import { ensureDirectoryExists, formatFileSize } from '@/utils/fileUtils';
 import { mockInstanceRepository } from '@/mocks/repositories/mockInstanceRepository';
-import { CONFIGS_DIR, PROXY_MODE, SERVER_HOSTNAME, UPLOAD_DIR } from '@/lib/constants';
+import { CONFIGS_DIR, PROXY_BASE_URL, PROXY_MODE, SERVER_HOSTNAME, UPLOAD_DIR } from '@/lib/constants';
 
 class FileRepository {
 	private configsDir: string;
@@ -33,7 +33,13 @@ class FileRepository {
 
 					let url = '';
 					if (PROXY_MODE) {
-						url = `http://${SERVER_HOSTNAME}/${fileData.port}`;
+						let baseUrl = '';
+						if (PROXY_BASE_URL != '') {
+							baseUrl = PROXY_BASE_URL;
+						} else {
+							baseUrl = `http://${SERVER_HOSTNAME}`;
+						}
+						url = `${baseUrl}/${fileData.port}`;
 					} else {
 						url = `http://${SERVER_HOSTNAME}:${fileData.port}`;
 					}
