@@ -73,5 +73,5 @@ EXPOSE 80
 
 # Start services
 CMD traefik --configFile=/app/configs/traefik/traefik.yml & \
-    node backend/dist/server.js & \
+    npm run start --prefix backend & \
     npx serve -s frontend/build -l 3005
