@@ -8,6 +8,8 @@ import { ApiResponse, StartMockResponse } from '@/types';
 import { fileRepository } from '@/mocks/repositories/fileRepository';
 import { mockInstanceRepository } from '@/mocks/repositories/mockInstanceRepository';
 import { LOGS_DIR } from '@/lib/constants';
+import { prisma } from '@/prisma';
+import { generateDynamicTraefikConfig } from '@/traefik/generate-traefik-config';
 
 const useUnsafePort = true;
 
@@ -56,6 +58,35 @@ export async function startMockHandler(req: Request, res: Response<ApiResponse<S
 			logFile,
 			uuid
 		});
+
+		let alias = await prisma.alias.findFirst({
+			where: {
+				fileName: configFile
+			}
+		});
+
+		if (!alias) {
+			alias = await prisma.alias.create({
+				data: {
+					fileName: configFile,
+					alias: port.toString(),
+					port: port,
+					isActive: true
+				}
+			}).catch(e=>{
+				console.error('Error creating alias:', e);
+				return null;
+			})
+		}
+
+		if (!alias) {
+			return res.status(500).json({ error: 'Failed to create alias' });
+		}
+
+		await generateDynamicTraefikConfig()
+			.catch(e => {
+				console.error('Error generating dynamic Traefik config:', e);
+			});
 
 		const response: StartMockResponse = {
 			success: true,

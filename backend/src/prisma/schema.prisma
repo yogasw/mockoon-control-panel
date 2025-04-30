@@ -8,7 +8,9 @@ generator client {
 }
 
 model Alias {
-  id    Int    @id @default(autoincrement())
-  alias String @unique
-  port  Int
+  id       Int     @id @default(autoincrement())
+  fileName String  @unique
+  alias    String  @unique
+  port     Int
+  isActive Boolean @default(false)
 }

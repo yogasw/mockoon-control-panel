@@ -25,7 +25,7 @@ const execAsync = util.promisify(exec);
 
 export async function checkAndHandlePrisma(): Promise<void> {
 	try {
-		await prisma.alias.findMany().then(() => {
+		await prisma.alias.findMany().then((a) => {
 			console.log('Prisma migration check: Alias table exists');
 		}).catch(async (e) => {
 			console.log('Prisma migration check: Alias table does not exist, running migrations');

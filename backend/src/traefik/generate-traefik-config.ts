@@ -19,7 +19,11 @@ export async function generateDynamicTraefikConfig(isFirstInit = false): Promise
 	let aliases: Alias[] = [];
 	if (!isFirstInit) {
 		try {
-			aliases = await prisma.alias.findMany();
+			aliases = await prisma.alias.findMany({
+				where: {
+					isActive: true
+				}
+			});
 		} catch (error) {
 			console.error('Error fetching aliases:', error);
 		}
