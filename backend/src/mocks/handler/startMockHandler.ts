@@ -63,7 +63,7 @@ export async function startMockHandler(req: Request, res: Response<ApiResponse<S
 			where: {
 				fileName: configFile
 			}
-		});
+		})
 
 		if (!alias) {
 			alias = await prisma.alias.create({
@@ -75,6 +75,19 @@ export async function startMockHandler(req: Request, res: Response<ApiResponse<S
 				}
 			}).catch(e=>{
 				console.error('Error creating alias:', e);
+				return null;
+			})
+		}else{
+			alias = await prisma.alias.update({
+				where: {
+					id: alias.id
+				},
+				data: {
+					port: port,
+					isActive: true
+				}
+			}).catch(e=>{
+				console.error('Error updating alias:', e);
 				return null;
 			})
 		}
