@@ -58,6 +58,7 @@ RUN npm install -g @mockoon/cli
 
 # Copy configuration files
 COPY --from=builder /app/configs/ ./configs/
+
 # Copy backend build
 COPY --from=builder /app/backend/dist/ ./backend/dist/
 
