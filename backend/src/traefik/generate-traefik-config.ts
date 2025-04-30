@@ -11,7 +11,7 @@ interface TraefikConfig {
 			{ rule: string; service: string; middlewares?: string[] }
 		>;
 		services: Record<string, { loadBalancer: { servers: Array<{ url: string }> } }>;
-		middlewares: Record<string, { stripPrefix: { prefixes: string[] } }>;
+		middlewares?: Record<string, { stripPrefix: { prefixes: string[] } }>;
 	};
 }
 
@@ -19,13 +19,12 @@ interface TraefikConfig {
  * Generate dynamic Traefik config based on Alias mapping
  * Always generate even if no aliases
  *
- * Middlewares (stripPrefix) are added per alias to strip the route prefix
- * before forwarding to the backend service.
- * This prevents 404 errors if the service does not expect the alias path prefix.
- * Example: /32818/xxx -> becomes /xxx at backend
+ * Middleware (stripPrefix) is added for each alias to remove the alias path prefix
+ * from the forwarded request, preventing 404 errors in backend services.
  */
 export async function generateDynamicTraefikConfig(isFirstInit = false): Promise<void> {
 	let aliases: Alias[] = [];
+
 	if (!isFirstInit) {
 		try {
 			aliases = await prisma.alias.findMany({
@@ -41,29 +40,34 @@ export async function generateDynamicTraefikConfig(isFirstInit = false): Promise
 	const config: TraefikConfig = {
 		http: {
 			routers: {},
-			services: {},
-			middlewares: {} // middlewares needed for stripping alias prefixes
+			services: {}
+			// middlewares will be added conditionally if needed
 		}
 	};
 
 	aliases.forEach(alias => {
 		const middlewareName = `strip-${alias.alias}`;
 
-		// Define router for each alias and attach stripPrefix middleware
+		// Define router for alias, with middleware to strip prefix
 		config.http.routers[alias.alias] = {
 			rule: `PathPrefix(\`/${alias.alias}\`)`,
 			service: alias.alias,
-			middlewares: [middlewareName] // ensure path like /32818/xxx becomes /xxx
+			middlewares: [middlewareName]
 		};
 
-		// Define service target (e.g., localhost:32818)
+		// Define service endpoint
 		config.http.services[alias.alias] = {
 			loadBalancer: {
 				servers: [{ url: `http://localhost:${alias.port}` }]
 			}
 		};
 
-		// Define middleware to strip the alias prefix before passing to backend
+		// Ensure middlewares object exists before adding
+		if (!config.http.middlewares) {
+			config.http.middlewares = {};
+		}
+
+		// Define middleware to strip alias prefix (e.g., /32818 -> /)
 		config.http.middlewares[middlewareName] = {
 			stripPrefix: {
 				prefixes: [`/${alias.alias}`]
@@ -71,7 +75,7 @@ export async function generateDynamicTraefikConfig(isFirstInit = false): Promise
 		};
 	});
 
-	// Static route for mock API
+	// Define static mock API route
 	config.http.routers['api'] = {
 		rule: 'PathPrefix(`/mock`)',
 		service: 'backend'
@@ -82,7 +86,7 @@ export async function generateDynamicTraefikConfig(isFirstInit = false): Promise
 		}
 	};
 
-	// Static route for frontend
+	// Define frontend route
 	config.http.routers['frontend'] = {
 		rule: 'PathPrefix(`/`)',
 		service: 'frontend'
@@ -93,7 +97,12 @@ export async function generateDynamicTraefikConfig(isFirstInit = false): Promise
 		}
 	};
 
-	// Write config to disk
+	// Clean up middlewares if none were added, to avoid Traefik YAML parsing errors
+	if (config.http.middlewares && Object.keys(config.http.middlewares).length === 0) {
+		delete config.http.middlewares;
+	}
+
+	// Write final config to file in YAML format
 	fs.writeFileSync(TRAEFIK_DYNAMIC_CONFIG_PATH, YAML.stringify(config));
 	console.log(`✅ Dynamic traefik dynamic.yml generated at ${TRAEFIK_DYNAMIC_CONFIG_PATH} (aliases: ${aliases.length})`);
 }
