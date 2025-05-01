@@ -2,7 +2,17 @@ import fs from 'fs';
 import path from 'path';
 import { ensureDirectoryExists, formatFileSize } from '@/utils/fileUtils';
 import { mockInstanceRepository } from '@/mocks/repositories/mockInstanceRepository';
-import { CONFIGS_DIR, PROXY_BASE_URL, PROXY_MODE, SERVER_HOSTNAME, UPLOAD_DIR } from '@/lib/constants';
+import { CONFIGS_DIR, UPLOAD_DIR } from '@/lib/constants';
+
+export type ConfigFile = {
+	uuid: string;
+	name: string;
+	configFile: string;
+	port: number;
+	size: string;
+	modified: Date;
+	inUse: boolean;
+}
 
 class FileRepository {
 	private configsDir: string;
@@ -15,7 +25,7 @@ class FileRepository {
 		ensureDirectoryExists(this.uploadsDir);
 	}
 
-	async listConfigs(): Promise<{ name: string; size: string; modified: Date; inUse: boolean }[]> {
+	async listConfigs(): Promise<ConfigFile[]> {
 		try {
 			const configsDir = this.configsDir;
 			if (!fs.existsSync(this.configsDir)) {
@@ -31,25 +41,11 @@ class FileRepository {
 					const fileContent = fs.readFileSync(filePath, 'utf-8');
 					const fileData = JSON.parse(fileContent);
 
-					let url = '';
-					if (PROXY_MODE) {
-						let baseUrl = '';
-						if (PROXY_BASE_URL != '') {
-							baseUrl = PROXY_BASE_URL;
-						} else {
-							baseUrl = `http://${SERVER_HOSTNAME}`;
-						}
-						url = `${baseUrl}/${fileData.port}`;
-					} else {
-						url = `http://${SERVER_HOSTNAME}:${fileData.port}`;
-					}
-
 					return {
 						uuid: fileData?.uuid,
 						name: fileData?.name,
 						configFile: file,
 						port: fileData?.port,
-						url: url,
 						size: formatFileSize(stats.size),
 						modified: stats.mtime,
 						inUse: Array.from(mockInstanceRepository.getAll().values()).some(

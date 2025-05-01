@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import {fileRepository} from "@/mocks/repositories/fileRepository";
-import {ApiResponse} from "@/types";
+import { fileRepository } from '@/mocks/repositories/fileRepository';
+import { ApiResponse } from '@/types';
 
 export async function deleteConfigHandler(req: Request, res: Response<ApiResponse>) {
   const { filename } = req.params;

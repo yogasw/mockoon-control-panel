@@ -1,7 +1,7 @@
-import {Request, Response} from 'express';
-import {mockInstanceRepository} from "@/mocks/repositories/mockInstanceRepository";
-import {ApiResponse, MockStatus} from "@/types";
-import {formatUptime} from "@/utils/fileUtils";
+import { Request, Response } from 'express';
+import { mockInstanceRepository } from '@/mocks/repositories/mockInstanceRepository';
+import { ApiResponse, MockStatus } from '@/types';
+import { formatUptime } from '@/utils/fileUtils';
 
 export function statusMockHandler(req: Request, res: Response<ApiResponse<MockStatus[]>>) {
     try {

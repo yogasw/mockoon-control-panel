@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 	import ConfigurationList from '$lib/components/ConfigurationList.svelte';
 	import Header from '$lib/components/Header.svelte';
-	import { getLocalStorage, isOwnAuth, removeLocalStorage } from '$lib/utils/localStorage';
+	import { isOwnAuth, removeLocalStorage } from '$lib/utils/localStorage';
 	import { browser } from '$app/environment';
 	import { getConfigs, getMockStatus } from '$lib/api/mockoonApi';
 	import { onMount } from 'svelte';

@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { toast } from '$lib/stores/toast';
-  import { onDestroy } from 'svelte';
+	import { toast } from '$lib/stores/toast';
+	import { onDestroy } from 'svelte';
 
-  let visible = true;
+	let visible = true;
   let timeoutId: ReturnType<typeof setTimeout>;
 
   function close() {
@@ -95,4 +95,4 @@
   from { opacity: 0; transform: translateX(-50%) translateY(20px); }
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
-</style> 
+</style>

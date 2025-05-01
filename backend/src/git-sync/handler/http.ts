@@ -1,5 +1,5 @@
-import {Request, Response} from 'express';
-import {SyncConfigsToGit} from "@/git-sync/services/SyncConfigs";
+import { Request, Response } from 'express';
+import { SyncConfigsToGit } from '@/git-sync/services/SyncConfigs';
 
 
 export const SyncToGitHttpHandler = async (req: Request, res: Response) => {

@@ -158,21 +158,6 @@
 
 <style>
 
-    .logo i {
-        font-size: 1.5rem;
-        color: #3b82f6;
-    }
-
-    .logo h1 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: #1e293b;
-    }
-
-    .nav-button i {
-        font-size: 1rem;
-    }
-
     .fa-spin {
         animation: fa-spin 1s infinite linear;
     }

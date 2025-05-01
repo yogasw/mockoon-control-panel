@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { deleteConfig } from '$lib/api/mockoonApi';
-  import { goto } from '$app/navigation';
-  import { configurations } from '$lib/stores/configurations';
-  import { selectedConfig as selectedConfigStore } from '$lib/stores/selectedConfig';
+	import { deleteConfig } from '$lib/api/mockoonApi';
+	import { goto } from '$app/navigation';
+	import { configurations } from '$lib/stores/configurations';
+	import { selectedConfig as selectedConfigStore } from '$lib/stores/selectedConfig';
 
-  interface Config {
+	interface Config {
     uuid: string;
     name: string;
     configFile: string;
@@ -83,63 +83,63 @@
     <div class="space-y-4">
       <div>
         <label for="config-name" class="block text-sm font-medium mb-2">Name</label>
-        <input 
-          type="text" 
-          id="config-name" 
-          class="w-full bg-gray-700 text-white p-2 rounded" 
+        <input
+          type="text"
+          id="config-name"
+          class="w-full bg-gray-700 text-white p-2 rounded"
           bind:value={config.name}
         />
       </div>
       <div>
         <label for="config-url" class="block text-sm font-medium mb-2">Base URL</label>
-        <input 
-          type="text" 
-          id="config-url" 
-          class="w-full bg-gray-700 text-white p-2 rounded" 
+        <input
+          type="text"
+          id="config-url"
+          class="w-full bg-gray-700 text-white p-2 rounded"
           bind:value={config.baseUrl}
         />
       </div>
       <div>
         <label for="config-port" class="block text-sm font-medium mb-2">Port</label>
-        <input 
-          type="number" 
-          id="config-port" 
-          class="w-full bg-gray-700 text-white p-2 rounded" 
+        <input
+          type="number"
+          id="config-port"
+          class="w-full bg-gray-700 text-white p-2 rounded"
           bind:value={config.port}
         />
       </div>
       <div>
         <label for="config-file" class="block text-sm font-medium mb-2">JSON File</label>
-        <input 
-          type="text" 
-          id="config-file" 
-          class="w-full bg-gray-700 text-white p-2 rounded" 
+        <input
+          type="text"
+          id="config-file"
+          class="w-full bg-gray-700 text-white p-2 rounded"
           bind:value={config.configFile}
         />
       </div>
       <div class="flex items-center space-x-2">
-        <input 
-          type="checkbox" 
-          id="config-cors" 
-          class="bg-gray-700 text-blue-500 rounded" 
+        <input
+          type="checkbox"
+          id="config-cors"
+          class="bg-gray-700 text-blue-500 rounded"
           bind:checked={config.cors}
         />
         <label for="config-cors" class="text-sm font-medium">Enable CORS</label>
       </div>
       <div class="flex items-center space-x-2">
-        <input 
-          type="checkbox" 
-          id="config-proxy" 
-          class="bg-gray-700 text-blue-500 rounded" 
+        <input
+          type="checkbox"
+          id="config-proxy"
+          class="bg-gray-700 text-blue-500 rounded"
           bind:checked={config.proxyMode}
         />
         <label for="config-proxy" class="text-sm font-medium">Enable Proxy Mode</label>
       </div>
       <div class="flex items-center space-x-2">
-        <input 
-          type="checkbox" 
-          id="config-https" 
-          class="bg-gray-700 text-blue-500 rounded" 
+        <input
+          type="checkbox"
+          id="config-https"
+          class="bg-gray-700 text-blue-500 rounded"
           bind:checked={config.https}
         />
         <label for="config-https" class="text-sm font-medium">Enable HTTPS</label>
@@ -169,4 +169,4 @@
       </div>
     </div>
   </div>
-{/if} 
+{/if}
