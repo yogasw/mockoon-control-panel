@@ -9,5 +9,5 @@ export function isValidSshUrl(url: string): boolean {
 }
 
 export function isValidSshKey(key: string): boolean {
-    return key.startsWith('-----BEGIN') && key.endsWith('-----END');
+    return key.startsWith('-----BEGIN OPENSSH PRIVATE KEY-----') && key.endsWith('-----END OPENSSH PRIVATE KEY-----');
 }

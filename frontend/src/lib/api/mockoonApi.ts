@@ -134,3 +134,26 @@ export const getConfigDetails = async (uuid: string): Promise<Config> => {
 	const response = await api.get(`/configs/${uuid}`);
 	return response.data.data;
 };
+
+
+export const saveGitConfig = async (config: {
+  gitName: string;
+  gitEmail: string;
+  gitBranch: string;
+  sshKey: string;
+  gitUrl: string;
+}): Promise<{ success: boolean; message: string }> => {
+  const response = await api.post('/git/save-config', config);
+  return response.data;
+};
+
+export const saveAndTestSyncGit = async (config: {
+  gitName: string;
+  gitEmail: string;
+  gitBranch: string;
+  sshKey: string;
+  gitUrl: string;
+}): Promise<{ success: boolean; message: string }> => {
+  const response = await api.post('/git/save-and-test-sync', config);
+  return response.data;
+};
