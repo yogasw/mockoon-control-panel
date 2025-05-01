@@ -77,7 +77,8 @@ class FileRepository {
 
 	async moveUploadedFile(sourcePath: string, filename: string): Promise<void> {
 		const targetPath = path.join(this.configsDir, filename);
-		await fs.promises.rename(sourcePath, targetPath);
+		await fs.promises.copyFile(sourcePath, targetPath);
+		await fs.promises.unlink(sourcePath);
 	}
 }
 
