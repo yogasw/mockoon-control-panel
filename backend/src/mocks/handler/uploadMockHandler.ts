@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import {ApiResponse, UploadResponse} from "@/types";
-import {fileRepository} from "@/mocks/repositories/fileRepository";
+import { ApiResponse, UploadResponse } from '@/types';
+import { fileRepository } from '@/mocks/repositories/fileRepository';
 
 interface MulterRequest extends Request {
   file?: Express.Multer.File;

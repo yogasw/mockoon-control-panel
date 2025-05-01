@@ -1,14 +1,12 @@
 <script lang="ts">
-  import RoutesTab from './tabs/RoutesTab.svelte';
-  import LogsTab from './tabs/LogsTab.svelte';
-  import ConfigurationTab from './tabs/ConfigurationTab.svelte';
-  import type { Config } from '$lib/api/mockoonApi';
-  import { onMount } from 'svelte';
-  import { downloadConfig } from '$lib/api/mockoonApi';
-  import { selectedConfig } from '$lib/stores/selectedConfig';
-  import { activeTab } from '$lib/stores/activeTab';
+	import RoutesTab from './tabs/RoutesTab.svelte';
+	import LogsTab from './tabs/LogsTab.svelte';
+	import ConfigurationTab from './tabs/ConfigurationTab.svelte';
+	import { downloadConfig } from '$lib/api/mockoonApi';
+	import { selectedConfig } from '$lib/stores/selectedConfig';
+	import { activeTab } from '$lib/stores/activeTab';
 
-  interface Route {
+	interface Route {
     path: string;
     method: string;
     status: 'enabled' | 'disabled';
@@ -54,17 +52,15 @@
   let loading = false;
   let error = '';
 
-  $: console.log('ContentArea - selectedConfig changed:', $selectedConfig);
-
   async function loadConfigData() {
     if (!$selectedConfig) return;
-    
+
     loading = true;
     try {
       // Download config using the configFile name
       const response = await downloadConfig($selectedConfig.configFile);
       const configData = response.data;
-      
+
       // Parse routes from config
       routes = configData.routes.map((route: MockoonRoute) => ({
         path: route.endpoint,

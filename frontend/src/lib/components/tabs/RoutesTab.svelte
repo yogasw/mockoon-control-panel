@@ -19,14 +19,14 @@
     size: string;
     modified: string;
     inUse: boolean;
-  }
+	}
 
-  import StatusBodyTab from './routes/StatusBodyTab.svelte';
-  import HeadersTab from './routes/HeadersTab.svelte';
-  import RulesTab from './routes/RulesTab.svelte';
-  import CallbacksTab from './routes/CallbacksTab.svelte';
+	import StatusBodyTab from './routes/StatusBodyTab.svelte';
+	import HeadersTab from './routes/HeadersTab.svelte';
+	import RulesTab from './routes/RulesTab.svelte';
+	import CallbacksTab from './routes/CallbacksTab.svelte';
 
-  export let selectedConfig: Config;
+	export let selectedConfig: Config;
   export let routes: Route[];
   export let activeContentTab = 'Status & Body';
 

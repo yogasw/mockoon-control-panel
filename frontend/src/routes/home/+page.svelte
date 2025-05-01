@@ -1,11 +1,9 @@
 <script lang="ts">
 	import ContentArea from '$lib/components/ContentArea.svelte';
 	import { onMount } from 'svelte';
-	import { getMockStatus, getConfigs } from '$lib/api/mockoonApi';
-	import type { Config } from '$lib/api/mockoonApi';
-	import { selectedConfig } from '$lib/stores/selectedConfig';
+	import { getConfigs, getMockStatus } from '$lib/api/mockoonApi';
 
-  interface Route {
+	interface Route {
     path: string;
     method: string;
     status: 'enabled' | 'disabled';
@@ -26,8 +24,6 @@
 
   // Get state from parent layout
   export let activeTab = 'routes';
-
-  $: console.log('Home Page - selectedConfig changed:', $selectedConfig);
 
   onMount(async () => {
     loading = true;

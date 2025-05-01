@@ -4,12 +4,13 @@
 	import { goto } from '$app/navigation';
 	import ConfigurationList from '$lib/components/ConfigurationList.svelte';
 	import Header from '$lib/components/Header.svelte';
-	import { getLocalStorage, removeLocalStorage } from '$lib/utils/localStorage';
+	import { isOwnAuth, removeLocalStorage } from '$lib/utils/localStorage';
 	import { browser } from '$app/environment';
 	import { getConfigs, getMockStatus } from '$lib/api/mockoonApi';
 	import { onMount } from 'svelte';
 	import { configurations } from '$lib/stores/configurations';
 	import Toast from '$lib/components/Toast.svelte';
+	import { isAuthenticated } from '$lib/stores/authentication';
 
 	interface Config {
 		uuid: string;
@@ -27,18 +28,17 @@
 	let activeTab = 'routes';
 
 	// Check authentication from localStorage
-	$: isAuthenticated = getLocalStorage('isAuthenticated') === 'true';
 	$: isLoginPage = $page.url.pathname === '/login';
 
 	// Redirect to login if not authenticated and not on login page
-	$: if (!isAuthenticated && !isLoginPage) {
+	$: if (!$isAuthenticated && !isLoginPage) {
 		if (browser) {
 			goto('/login');
 		}
 	}
 
 	// Redirect to home if authenticated and on login page
-	$: if (isAuthenticated && isLoginPage) {
+	$: if ($isAuthenticated && isLoginPage) {
 		if (browser) {
 			goto('/');
 		}
@@ -53,6 +53,9 @@
 	}
 
 	async function fetchStatus() {
+		if (!$isAuthenticated) {
+			return;
+		}
 		try {
 			const status = await getMockStatus();
 			// Update configurations with latest status
@@ -75,21 +78,26 @@
 		}
 	}
 
-	onMount(async () => {
-		await fetchConfigs();
-		await fetchStatus();
+	onMount(() => {
+		async function initialize() {
+			if (isOwnAuth()){
+				isAuthenticated.set(true)
+			}
 
-		// Set up interval to refresh status every 5 seconds
-		const interval = setInterval(fetchStatus, 5000);
+			await fetchConfigs();
+			await fetchStatus();
+			// Set up interval to refresh status every 5 seconds
+			const interval = setInterval(fetchStatus, 15000);
 
-		return () => clearInterval(interval);
+			// Cleanup function to clear the interval
+			return () => clearInterval(interval);
+		}
+
+		initialize();
 	});
 
 	function handleConfigSelect(event: CustomEvent<Config>) {
-		console.log('5. Layout - Received event with config:', event.detail);
-		console.log('6. Layout - Current selectedConfig:', selectedConfig);
 		selectedConfig = { ...event.detail };
-		console.log('7. Layout - After update selectedConfig:', selectedConfig);
 	}
 
 	function handleConfigStart(event: CustomEvent<Config>) {
@@ -116,7 +124,7 @@
 	}
 
 	function handleLogout() {
-		removeLocalStorage('isAuthenticated');
+		isAuthenticated.set(false)
 		removeLocalStorage('username');
 		removeLocalStorage('password');
 		window.location.href = '/login';
