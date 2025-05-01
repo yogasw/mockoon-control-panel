@@ -14,3 +14,15 @@ model Alias {
   port     Int
   isActive Boolean @default(false)
 }
+
+/// table system configuration
+model SystemConfig {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  value       String
+  type        String   @default("string") // string, number, boolean, json
+  description String   @default("") // optional description
+  hideValue   Boolean  @default(false) // hide value in the UI
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

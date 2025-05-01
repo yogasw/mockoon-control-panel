@@ -1,5 +1,5 @@
 <script lang="ts">
-  import '../../app.css';
+	import '../../app.css';
 </script>
 
 <slot />
@@ -11,4 +11,4 @@
     min-height: 100vh;
     background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
   }
-</style> 
+</style>

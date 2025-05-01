@@ -1,10 +1,17 @@
 import path from 'path';
 import simpleGit from 'simple-git';
 import fs from 'fs';
-import { CONFIGS_DIR, GIT_BRANCH, GIT_EMAIL, GIT_NAME, GIT_URL, SSH_KEY } from '@/lib/constants';
+import { CONFIGS_DIR } from '@/lib/constants';
 import { execSync } from 'child_process';
+import { GetSystemConfig, SystemConfigKey } from '@/utils/systemConfig';
 
 export async function SyncConfigsToGit(): Promise<Error | null> {
+	const GIT_NAME = await GetSystemConfig(SystemConfigKey.GIT_NAME) as string
+	const GIT_EMAIL = await GetSystemConfig(SystemConfigKey.GIT_EMAIL) as string
+	const GIT_URL = await GetSystemConfig(SystemConfigKey.GIT_URL) as string
+	const GIT_BRANCH = await GetSystemConfig(SystemConfigKey.GIT_BRANCH) as string
+	const SSH_KEY = await GetSystemConfig(SystemConfigKey.SSH_KEY) as string
+
 	const configDir = CONFIGS_DIR;
 	const git = simpleGit(configDir);
 	const gitBranch = GIT_BRANCH;
