@@ -4,6 +4,7 @@
 	import { selectedConfig } from '$lib/stores/selectedConfig';
 	import { syncStatus } from '$lib/stores/syncStatus';
 	import { toast } from '$lib/stores/toast';
+	import Settings from '$lib/components/settings/Settings.svelte';
 
 	export let handleLogout: () => void;
 
@@ -153,51 +154,7 @@
 </div>
 
 <!-- Settings Modal -->
-<div
-	id="settingsModal"
-	class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center hidden"
->
-	<div class="bg-gray-800 text-white rounded-lg shadow-lg p-6 w-96">
-		<h2 class="text-xl font-bold mb-4">Settings</h2>
-		<div class="space-y-4">
-			<div>
-				<label class="block text-sm font-bold mb-2">Username</label>
-				<input
-					type="text"
-					class="w-full bg-gray-700 text-white py-2 px-4 rounded"
-					placeholder="Enter your username"
-				/>
-			</div>
-			<div>
-				<label class="block text-sm font-bold mb-2">Email</label>
-				<input
-					type="email"
-					class="w-full bg-gray-700 text-white py-2 px-4 rounded"
-					placeholder="Enter your email"
-				/>
-			</div>
-			<div>
-				<label class="block text-sm font-bold mb-2">Password</label>
-				<input
-					type="password"
-					class="w-full bg-gray-700 text-white py-2 px-4 rounded"
-					placeholder="Enter your password"
-				/>
-			</div>
-		</div>
-		<div class="flex justify-end mt-4 space-x-2">
-			<button
-				class="bg-gray-600 text-white py-2 px-4 rounded"
-				on:click={() =>closeSettingsModal()}
-			>
-				Cancel
-			</button>
-			<button class="bg-blue-500 text-white py-2 px-4 rounded">
-				Save
-			</button>
-		</div>
-	</div>
-</div>
+<Settings />
 
 <style>
 
