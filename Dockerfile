@@ -1,7 +1,5 @@
-ARG TRAEFIK_VERSION=2.10.7
-ARG NODE_VERSION=22.15.0-alpine3.21
 # -------- Stage 1: Build Stage (Backend + Frontend) --------
-FROM node:${NODE_VERSION} AS builder
+FROM node:22.15.0-alpine3.21 AS builder
 
 WORKDIR /app
 
@@ -30,7 +28,9 @@ RUN npm run db:generate --prefix backend
 
 
 # -------- Stage 2: Production Stage --------
-FROM node:${NODE_VERSION}
+FROM node:22.15.0-alpine3.21
+
+ARG TRAEFIK_VERSION=2.10.7
 
 # Set architecture environment from container
 RUN apk update
