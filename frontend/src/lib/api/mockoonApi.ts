@@ -58,9 +58,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
 	response => response,
 	error => {
+		console.log('route', error.response?.config.url);
 		if (error.response?.status === 401) {
 			console.error('Authentication failed');
 			removeAuthLocalStorage();
+			if (window.location.pathname !== '/login') {
+				window.location.href = '/login';
+			}
 		}
 		return Promise.reject(error);
 	}

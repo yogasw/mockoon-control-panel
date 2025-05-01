@@ -1,10 +1,11 @@
 <script lang="ts">
-  import { goto } from '$app/navigation';
-  import { browser } from '$app/environment';
-  import { setLocalStorage } from '$lib/utils/localStorage';
-  import { fetchConfigsStore } from '$lib/stores/configurations';
+	import { goto } from '$app/navigation';
+	import { browser } from '$app/environment';
+	import { setLocalStorage } from '$lib/utils/localStorage';
+	import { fetchConfigsStore } from '$lib/stores/configurations';
+	import { isAuthenticated } from '$lib/stores/authentication';
 
-  let username = '';
+	let username = '';
 	let password = '';
 	let error = '';
 
@@ -12,7 +13,7 @@
 		try {
 			if (username && password) {
 				// For now, just set authentication state and redirect
-				setLocalStorage('isAuthenticated', 'true');
+				isAuthenticated.set(true);
 				setLocalStorage('username', username);
 				setLocalStorage('password', password);
 				if (browser) {

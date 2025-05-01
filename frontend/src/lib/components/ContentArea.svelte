@@ -54,17 +54,15 @@
   let loading = false;
   let error = '';
 
-  $: console.log('ContentArea - selectedConfig changed:', $selectedConfig);
-
   async function loadConfigData() {
     if (!$selectedConfig) return;
-    
+
     loading = true;
     try {
       // Download config using the configFile name
       const response = await downloadConfig($selectedConfig.configFile);
       const configData = response.data;
-      
+
       // Parse routes from config
       routes = configData.routes.map((route: MockoonRoute) => ({
         path: route.endpoint,

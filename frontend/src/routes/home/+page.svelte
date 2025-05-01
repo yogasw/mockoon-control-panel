@@ -27,8 +27,6 @@
   // Get state from parent layout
   export let activeTab = 'routes';
 
-  $: console.log('Home Page - selectedConfig changed:', $selectedConfig);
-
   onMount(async () => {
     loading = true;
     try {
