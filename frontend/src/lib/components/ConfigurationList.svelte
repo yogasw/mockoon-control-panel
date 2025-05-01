@@ -127,9 +127,19 @@
             {/if}
             {config.name}
           </h2>
-          <p class="text-xs">
-            URL: <a href={config.url} class="text-blue-400 hover:underline" on:click|stopPropagation target="_blank">{config.url}</a>
-          </p>
+					<p class="text-xs">
+						URL:
+						{#if config.inUse}
+							<a href={config.url} class="text-blue-400 hover:underline" target="_blank">{config.url}</a>
+						{:else}
+							<span class="relative group text-gray-500 cursor-not-allowed">
+								{config.url}
+								<span class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-800 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-opacity">
+									This URL cannot be accessed because it is not in use.
+								</span>
+							</span>
+						{/if}
+					</p>
           <p class="text-xs">Port: {config.port}</p>
           <p class="text-xs">File: {config.configFile}</p>
           <p class="text-xs">Size: {config.size}</p>

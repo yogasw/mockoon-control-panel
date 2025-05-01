@@ -13,7 +13,12 @@ import { deleteConfigHandler } from '@/mocks/handler/deleteConfigHandler';
 import { uploadMockHandler } from '@/mocks/handler/uploadMockHandler';
 import { downloadConfigHandler } from '@/mocks/handler/downloadConfigHandler';
 import { healthCheckHandler } from '@/health/healthCheckHandler';
-import { SyncToGitHttpHandler } from '@/git-sync/handler/http';
+import {
+	GetGitConfigHandler,
+	SaveAndTestSyncGitHandler,
+	SaveGitConfigHandler,
+	SyncToGitHttpHandler
+} from '@/git-sync/handler/http';
 import { CONFIGS_DIR, CORS_ORIGIN, LOGS_DIR, SERVER_HOSTNAME, SERVER_PORT, UPLOAD_DIR } from '@/lib/constants';
 import process from 'node:process';
 import { generateStaticTraefikConfig } from '@/traefik/generateStaticTraefikConfig';
@@ -21,6 +26,7 @@ import { generateDynamicTraefikConfig } from '@/traefik/generate-traefik-config'
 import { SyncConfigsToGit } from '@/git-sync/services/SyncConfigs';
 import { checkAndHandlePrisma } from '@/prisma';
 import { EnsureRequiredFoldersAndEnv } from '@/utils/setupFolderConfig';
+import { SaveGitConfigService } from '@/git-sync/services/gitConfigService';
 
 // Load environment variables
 config({ path: '../.env' });
@@ -124,6 +130,10 @@ app.get('/mock/api/configs', listConfigsHandler);
 app.delete('/mock/api/configs/:filename', deleteConfigHandler);
 app.get('/mock/api/configs/:filename/download', downloadConfigHandler);
 app.post('/mock/api/sync', SyncToGitHttpHandler);
+
+app.post('/mock/api/git/save-config', SaveGitConfigHandler);
+app.post('/mock/api/git/save-and-test-sync', SaveAndTestSyncGitHandler);
+app.get('/mock/api/git/config', GetGitConfigHandler);
 
 // Start server
 
