@@ -47,7 +47,6 @@ export const GetSystemConfig = async (key: SystemConfigKey): Promise<string | nu
  * Set a system configuration value in the database with type validation
  * @param key - Configuration key to set
  * @param value - Value to store
- * @param type - Type of the value (string, number, boolean)
  * @returns True if successful, false otherwise
  */
 export const SetSystemConfig = async (
