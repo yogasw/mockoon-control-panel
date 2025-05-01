@@ -1,7 +1,12 @@
+ARG CACHE_BREAK=default
+
 # -------- Stage 1: Build Stage (Backend + Frontend) --------
-FROM node:20 AS builder
+FROM node:22.15.0-alpine3.21 AS builder
 
 WORKDIR /app
+
+# -------- Install System Tools --------
+RUN apk update && apk add --no-cache openssl
 
 # Copy backend and frontend source code
 COPY backend/ ./backend/
@@ -25,15 +30,16 @@ RUN npm run db:generate --prefix backend
 
 
 # -------- Stage 2: Production Stage --------
-FROM node:20
+FROM node:22.15.0-alpine3.21
 
 # -------- Install System Tools & Traefik Binary --------
 # Build arguments
 ARG TRAEFIK_VERSION=2.10.7
 
 # Set architecture environment from container
-RUN apt update && apt install -y curl tar gzip sqlite3 \
-  && export ARCH=$(dpkg --print-architecture) \
+RUN apk update
+RUN apk add --no-cache curl tar gzip sqlite openssl
+RUN ARCH=$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/') \
   && echo "Detected architecture: $ARCH" \
   && curl -L "https://github.com/traefik/traefik/releases/download/v${TRAEFIK_VERSION}/traefik_v${TRAEFIK_VERSION}_linux_${ARCH}.tar.gz" \
   | tar -xz -C /usr/local/bin traefik \
@@ -45,13 +51,17 @@ WORKDIR /app
 # Set environment for production
 ENV NODE_ENV=production
 
+# Initialize folders for backend and frontend
+RUN mkdir -p backend frontend
+
 # Copy Prisma schema
 COPY --from=builder /app/backend/src/prisma/schema.prisma ./backend/src/prisma/schema.prisma
 
 # Install only production dependencies
-COPY backend/package.json backend/package-lock.json ./backend/
-COPY frontend/package.json frontend/package-lock.json ./frontend/
-RUN npm install --prefix backend --only=production && npm install --prefix frontend --only=production
+COPY --from=builder /app/backend/package*.json ./backend/
+COPY --from=builder /app/frontend/package*.json ./frontend/
+RUN npm ci --prefix backend
+RUN npm ci --prefix frontend
 
 # Install mockoon CLI
 RUN npm install -g @mockoon/cli
