@@ -7,7 +7,7 @@ export async function listConfigsHandler(req: Request, res: Response<ApiResponse
 	try {
 		const configs = await fileRepository.listConfigs();
 		if (!configs || configs.length === 0) {
-			return res.status(404).json({ error: 'No configuration files found' });
+			res.json({ data: [] });
 		} else {
 			const configsWithUrl = [];
 			for (const config of configs) {
