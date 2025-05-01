@@ -1,6 +1,7 @@
 <script>
 	import GitConfiguration from '$lib/components/settings/tabs/git/GitConfiguration.svelte';
 	import AdminConfiguration from '$lib/components/settings/tabs/git/AdminConfiguration.svelte';
+	import AdvancedConfiguration from '$lib/components/settings/tabs/git/AdvancedConfiguration.svelte';
 
 	function toggleTab(tabId) {
 		const tabs = document.querySelectorAll('.tab-content');
@@ -76,7 +77,7 @@
 		<div class="w-full md:w-3/4 p-6 md:pt-12 overflow-y-auto">
 			<AdminConfiguration/>
 			<GitConfiguration />
-			<GitConfiguration/>
+			<AdvancedConfiguration/>
 		</div>
 	</div>
 </div>

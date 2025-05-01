@@ -1,12 +1,4 @@
 <script>
-	function togglePasswordVisibility() {
-		const oldPasswordInput = document.getElementById("oldPassword");
-		const newPasswordInput = document.getElementById("newPassword");
-		const isChecked = document.getElementById("showPasswordCheckbox").checked;
-
-		oldPasswordInput.type = isChecked ? "text" : "password";
-		newPasswordInput.type = isChecked ? "text" : "password";
-	}
 	function showLoading(buttonId) {
 		const button = document.getElementById(buttonId);
 		button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
@@ -30,7 +22,7 @@
 			<input
 				type="text"
 				class="w-full bg-gray-700 text-white py-2 px-4 rounded"
-				placeholder="Git name"
+				placeholder="Name commit author"
 			/>
 		</div>
 		<div>
@@ -38,7 +30,7 @@
 			<input
 				type="email"
 				class="w-full bg-gray-700 text-white py-2 px-4 rounded"
-				placeholder="Git email"
+				placeholder="Email commit author"
 			/>
 		</div>
 		<div>
@@ -51,22 +43,12 @@
 		</div>
 		<div>
 			<label class="block text-sm font-bold mb-2">Private Key (id_rsa)</label>
+			<p class="text-sm text-gray-400 mt-2">The private key will only be visible during the initial input.</p>
 			<textarea
 				id="privateKey"
 				class="w-full bg-gray-700 text-white py-2 px-4 rounded resize-none"
 				rows="4"
 				placeholder="Paste your private key (e.g., id_rsa), starting with -----BEGIN OPENSSH PRIVATE KEY----- and ending with -----END OPENSSH PRIVATE KEY-----"></textarea>
-			<div class="flex items-center mt-2">
-				<input
-					id="showPrivateKeyCheckbox"
-					type="checkbox"
-					class="mr-2"
-					on:click={()=>togglePasswordVisibility()}
-				/>
-				<label for="showPrivateKeyCheckbox" class="text-sm">
-					Show Private Key
-				</label>
-			</div>
 		</div>
 		<div>
 			<label class="block text-sm font-bold mb-2">SSH URL</label>
