@@ -53,6 +53,18 @@
 			updateButton.disabled = false;
 		}, 3000); // 3 seconds delay
 	}
+	function showLoading(buttonId) {
+		const button = document.getElementById(buttonId);
+		button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Syncing...';
+		button.disabled = true;
+
+		// Simulate a delay for the sync process
+		setTimeout(() => {
+			button.innerHTML = 'Save and Test Sync';
+			button.disabled = false;
+		}, 5000); // 5 seconds delay
+	}
+
 </script>
 
 <!-- Configuration Modal -->
@@ -108,9 +120,10 @@
 		<!-- Right Content -->
 		<div class="w-full md:w-3/4 p-6 md:pt-12 overflow-y-auto">
 			<!-- Git Configuration Tab -->
+			<!-- Git Configuration Tab -->
 			<div id="gitConfigTab" class="tab-content">
+				<h3 class="text-xl font-bold mb-4">Git Configuration</h3>
 				<div class="space-y-4">
-					<h3 class="text-xl font-bold mb-4">Git Configuration</h3>
 					<div>
 						<label class="block text-sm font-bold mb-2">Name</label>
 						<input
@@ -132,23 +145,22 @@
 						<input
 							type="text"
 							class="w-full bg-gray-700 text-white py-2 px-4 rounded"
-							placeholder="Default branch (e.g., main)"
+							placeholder="Default branch (e.g., main)}"
 						/>
 					</div>
 					<div>
 						<label class="block text-sm font-bold mb-2">Private Key (id_rsa)</label>
-						<input
+						<textarea
 							id="privateKey"
-							type="password"
-							class="w-full bg-gray-700 text-white py-2 px-4 rounded"
-							placeholder="Enter your private key"
-						/>
+							class="w-full bg-gray-700 text-white py-2 px-4 rounded resize-none"
+							rows="4"
+							placeholder="Paste your private key (e.g., id_rsa), starting with -----BEGIN OPENSSH PRIVATE KEY----- and ending with -----END OPENSSH PRIVATE KEY-----"></textarea>
 						<div class="flex items-center mt-2">
 							<input
 								id="showPrivateKeyCheckbox"
 								type="checkbox"
 								class="mr-2"
-								on:click={togglePasswordVisibility}
+								on:click={()=>togglePasswordVisibility()}
 							/>
 							<label for="showPrivateKeyCheckbox" class="text-sm">
 								Show Private Key
@@ -160,13 +172,22 @@
 						<input
 							type="text"
 							class="w-full bg-gray-700 text-white py-2 px-4 rounded"
-							placeholder="Enter SSH URL (e.g., git@github.com:user/repo.git)"
+							placeholder="Enter SSH URL (e.g., git@github.com:user/repo.git)}"
 						/>
 					</div>
 				</div>
-				<button class="bg-blue-500 text-white py-2 px-4 rounded mt-4 w-full">
-					Save Configuration
-				</button>
+				<div class="flex space-x-4 mt-4">
+					<button class="bg-blue-500 text-white py-2 px-4 rounded w-full">
+						Save Configuration
+					</button>
+					<button
+						id="saveAndTestSyncButton"
+						class="bg-green-500 text-white py-2 px-4 rounded w-full"
+						on:click={()=>showLoading('saveAndTestSyncButton')}
+					>
+						Save and Test Sync
+					</button>
+				</div>
 			</div>
 
 			<!-- Admin Settings Tab -->
@@ -195,7 +216,7 @@
 							id="showPasswordCheckbox"
 							type="checkbox"
 							class="mr-2"
-							on:click={togglePasswordVisibility}
+							on:click={()=>togglePasswordVisibility()}
 						/>
 						<label for="showPasswordCheckbox" class="text-sm">
 							Show Password
