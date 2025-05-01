@@ -21,7 +21,7 @@ export const IS_DEBUG: string = 'false';
 export const SERVER_PORT = parseInt(process.env.SERVER_PORT || '3600', 10);
 export const SERVER_HOSTNAME = process.env.SERVER_HOSTNAME || '0.0.0.0';
 export const CORS_ORIGIN = process.env.CORS_ORIGIN || '*';
-export const PROXY_MODE = process.env.PROXY_MODE == 'true' || false;
+export const PROXY_MODE = process.env.PROXY_MODE !== 'false';
 export const PROXY_BASE_URL = process.env.PROXY_BASE_URL || '';
 //Git
 export const GIT_URL = process.env.GIT_URL || '';
