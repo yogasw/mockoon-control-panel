@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { SyncConfigsToGit } from '@/git-sync/services/SyncConfigs';
+import { SaveAndTestSyncGitService, SaveGitConfigService } from '@/git-sync/services/gitConfigService';
 
 
 export const SyncToGitHttpHandler = async (req: Request, res: Response) => {
@@ -15,3 +16,25 @@ export const SyncToGitHttpHandler = async (req: Request, res: Response) => {
         message: 'Successfully synced configs to Git repository'
     });
 }
+
+export const SaveGitConfigHandler = async (req: Request, res: Response) => {
+    const { gitUrl, gitBranch, sshKey, gitName, gitEmail } = req.body;
+
+    const result = await SaveGitConfigService({ gitUrl, gitBranch, sshKey, gitName, gitEmail });
+    if (!result.success) {
+        return res.status(400).json(result);
+    }
+
+    return res.status(200).json(result);
+};
+
+export const SaveAndTestSyncGitHandler = async (req: Request, res: Response) => {
+    const { gitUrl, gitBranch, sshKey, gitName, gitEmail } = req.body;
+
+    const result = await SaveAndTestSyncGitService({ gitUrl, gitBranch, sshKey, gitName, gitEmail });
+    if (!result.success) {
+        return res.status(500).json(result);
+    }
+
+    return res.status(200).json(result);
+};
