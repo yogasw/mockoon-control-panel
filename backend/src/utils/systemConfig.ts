@@ -4,11 +4,27 @@ import { prisma } from '@/prisma';
 
 export enum SystemConfigKey {
 	BASE_URL = 'BASE_URL:string',
+
+	//Git sync
+	GIT_URL = 'GIT_URL:string',
+	GIT_BRANCH = 'GIT_BRANCH:string',
+	SSH_KEY = 'SSH_KEY:string',
+	GIT_NAME = 'GIT_NAME:string',
+	GIT_EMAIL = 'GIT_EMAIL:string',
+
 }
 
 // Default values for variables
 export const defaultVariables = {
-	[SystemConfigKey.BASE_URL]: ''
+	[SystemConfigKey.BASE_URL]: '',
+
+	//Git sync
+	[SystemConfigKey.GIT_URL]: '',
+	[SystemConfigKey.GIT_BRANCH]: 'main',
+	[SystemConfigKey.SSH_KEY]: '',
+	[SystemConfigKey.GIT_NAME]: 'Mockoon Control Panel',
+	[SystemConfigKey.GIT_EMAIL]: 'noreply@example.com'
+
 };
 
 /**
