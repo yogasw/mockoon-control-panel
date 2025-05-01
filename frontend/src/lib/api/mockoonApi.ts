@@ -157,3 +157,18 @@ export const saveAndTestSyncGit = async (config: {
   const response = await api.post('/git/save-and-test-sync', config);
   return response.data;
 };
+
+export const getGitConfig = async (): Promise<{
+	success: boolean;
+	data?: {
+		gitName: string;
+		gitEmail: string;
+		gitUrl: string;
+		gitBranch: string;
+		sshKey: string;
+	};
+	message?: string;
+}> => {
+	const response = await api.get('/git/config');
+	return response.data;
+};

@@ -1,5 +1,5 @@
 <script>
-	import { saveAndTestSyncGit, saveGitConfig } from '$lib/api/mockoonApi';
+	import { getGitConfig, saveAndTestSyncGit, saveGitConfig } from '$lib/api/mockoonApi';
 
 	let gitName = '';
 	let gitEmail = '';
@@ -34,6 +34,33 @@
 			isLoading = false;
 		}
 	}
+
+	// Fetch Git configuration from the backend
+	async function fetchGitConfig() {
+		isLoading = true;
+		message = '';
+		try {
+			const result = await getGitConfig();
+			if (result.success && result.data) {
+				gitName = result.data.gitName ?? '';
+				gitEmail = result.data.gitEmail ?? '';
+				gitBranch = result.data.gitBranch ?? '';
+				sshKey = ''; // SSH key is not returned for security reasons
+				gitUrl = result.data.gitUrl ?? '';
+			} else {
+				message = 'Failed to fetch Git configuration.';
+			}
+		} catch (error) {
+			message = 'Error fetching Git configuration.';
+		} finally {
+			isLoading = false;
+		}
+	}
+
+	fetchGitConfig()
+
+	// Fetch Git configuration on component mount
+
 </script>
 
 <!-- Git Configuration Tab -->
