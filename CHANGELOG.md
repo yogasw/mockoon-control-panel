@@ -1,3 +1,10 @@
+## v4.0.0 - v4.0.0
+_Released on 
+
+**New Features**
+
+1.  Adds  providing detailed information about the release.
+
 ## v3.2.3 - v3.2.3
 _Released on 
 
