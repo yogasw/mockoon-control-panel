@@ -1,7 +1,6 @@
 #!/bin/sh
 
 # Check if DATABASE_URL is set
-echo "${DATABASE_URL}"
 if [ -z "$DATABASE_URL" ]; then
   echo "DATABASE_URL is not set. Using default SQLite database."
   export DATABASE_URL="file:/app/configs/db/db.sqlite"
