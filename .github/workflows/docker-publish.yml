@@ -88,7 +88,8 @@ jobs:
           PR_TITLE=${{ steps.pr_info.outputs.pr_title }}
           PR_BODY=${{ steps.pr_info.outputs.pr_body }}
           PROMPT="Release version: $VERSION\n\nPull Request: $PR_TITLE\n\nDescription:\n$PR_BODY\n\nCommits:\n$LOG\n\nWrite a release summary including features, improvements, and bug fixes in bullet points."
-
+          echo "Prompt AI: $PROMPT"
+          echo "Calling Gemini API to generate release summary..."
           RESPONSE=$(curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
             -H 'Content-Type: application/json' \
             -X POST \
