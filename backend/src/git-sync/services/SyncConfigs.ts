@@ -6,11 +6,11 @@ import { execSync } from 'child_process';
 import { GetSystemConfig, SystemConfigKey } from '@/utils/systemConfig';
 
 export async function SyncConfigsToGit(): Promise<Error | null> {
-	const GIT_NAME = await GetSystemConfig(SystemConfigKey.GIT_NAME) as string
-	const GIT_EMAIL = await GetSystemConfig(SystemConfigKey.GIT_EMAIL) as string
-	const GIT_URL = await GetSystemConfig(SystemConfigKey.GIT_URL) as string
-	const GIT_BRANCH = await GetSystemConfig(SystemConfigKey.GIT_BRANCH) as string
-	const SSH_KEY = await GetSystemConfig(SystemConfigKey.SSH_KEY) as string
+	const GIT_NAME = await GetSystemConfig(SystemConfigKey.GIT_NAME) as string;
+	const GIT_EMAIL = await GetSystemConfig(SystemConfigKey.GIT_EMAIL) as string;
+	const GIT_URL = await GetSystemConfig(SystemConfigKey.GIT_URL) as string;
+	const GIT_BRANCH = await GetSystemConfig(SystemConfigKey.GIT_BRANCH) as string;
+	const SSH_KEY = await GetSystemConfig(SystemConfigKey.SSH_KEY) as string;
 
 	const configDir = CONFIGS_DIR;
 	const git = simpleGit(configDir);
@@ -81,22 +81,41 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 	if (!fs.existsSync(gitDir)) {
 
 		console.log('Initializing Git repository...');
-		await git.init();
+		await git.init().catch(e => {
+			console.error('Error initializing Git repository:', e);
+			return Error(e.message);
+		});
 
 		// Configure Git
-		await git.addConfig('core.sshCommand', `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`);
+		await git.addConfig('core.sshCommand', `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`)
+			.catch(e => {
+				console.error('Error configuring Git:', e);
+				return Error(e.message);
+			});
 
 		// Add remote
 		console.log('Adding remote repository...');
-		await git.addRemote('origin', GIT_URL);
+		await git.addRemote('origin', GIT_URL)
+			.catch(e => {
+				console.error('Error adding remote repository:', e);
+				return Error(e.message);
+			});
 
 		// Pull changes from the remote repository
 		console.log('Pulling changes from remote repository...');
 		try {
 			// Step 1: Fetch the latest updates from the remote repository
-			await git.fetch('origin', gitBranch);
+			await git.fetch('origin', gitBranch)
+				.catch(e => {
+					console.error('Error fetching from remote repository:', e);
+					return Error(e.message);
+				});
 			// Step 2: Forcefully reset the local branch to match the remote branch
-			await git.reset(['--hard', `origin/${gitBranch}`]);
+			await git.reset(['--hard', `origin/${gitBranch}`])
+				.catch(e => {
+					console.error('Error resetting local branch:', e);
+					return Error(e.message);
+				});
 		} catch (pullError: any) {
 			if (pullError.message.includes('There is no tracking information for the current branch')) {
 				console.log('No tracking information found. Setting upstream branch...');
@@ -128,65 +147,134 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 
 		// Add configs folder
 		console.log('Adding configs folder...');
-		await git.add(configDir);
+		await git.add(configDir).catch(e => {
+			console.error('Error adding configs folder:', e);
+			return Error(e.message);
+		});
 
 		// Initial commit
 		console.log('Creating initial commit...');
-		await git.commit('Initial commit: Add mock configurations');
+		await git.commit('Initial commit: Add mock configurations')
+			.catch(e => {
+				console.error('Error creating initial commit:', e);
+				return Error(e.message);
+			});
 
 		// Push to remote
 		console.log('Pushing to remote repository...');
-		await git.push('origin', gitBranch);
+		await git.push('origin', gitBranch)
+			.catch(e => {
+				console.error('Error pushing to remote repository:', e);
+				return Error(e.message);
+			});
 	} else {
+
+		//check current branch
+		const currentBranch = await git.branch()
+			.then(branches => branches.current)
+			.catch(e => {
+				console.error('Error getting current branch:', e);
+				return Error(e.message);
+			});
+
+		if (currentBranch !== gitBranch) {
+			console.log(`Switching to branch ${gitBranch}...`);
+			await git.checkout(gitBranch)
+				.catch(e => {
+					console.error('Error switching branches:', e);
+					return Error(e.message);
+				});
+		}
+
 		// Pull changes first
 		console.log('Pulling latest changes...');
-		try {
-			await git.pull('origin', gitBranch);
-		} catch (pullError: any) {
-			// If pull fails, try to handle merge conflicts
-			if (pullError.message?.includes('conflict')) {
-				// Stash current changes
-				await git.stash();
+		let pullError: any;
+		await git.pull('origin', gitBranch)
+			.catch(e => {
+				console.error('Error pulling changes:', e);
+				pullError = e;
+			});
+		// If pull fails, try to handle merge conflicts
+		if (pullError?.message?.includes('conflict')) {
+			// Stash current changes
+			await git.stash()
+				.catch(e => {
+					console.error('Error stashing changes:', e);
+					return Error(e.message);
+				});
 
-				// Pull again
-				await git.pull('origin', gitBranch);
+			// Pull again
+			await git.pull('origin', gitBranch)
+				.catch(e => {
+					console.error('Error pulling changes after stash:', e);
+					return Error(e.message);
+				});
 
-				// Apply stashed changes
-				await git.stash(['pop']);
+			// Apply stashed changes
+			await git.stash(['pop'])
+				.catch(e => {
+					console.error('Error applying stashed changes:', e);
+					return Error(e.message);
+				});
 
-				// If there are conflicts, abort the merge
-				if (await git.status().then(status => status.conflicted.length > 0)) {
-					await git.merge(['--abort']);
-					return Error(`Merge conflict detected. Please resolve conflicts manually. \n${pullError.message}`);
-				}
-			} else {
-				return pullError;
-			}
+// If there are conflicts, abort the merge
+			await git.status()
+				.then(status => {
+					if (status.conflicted.length > 0) {
+						return git.merge(['--abort'])
+							.then(() => {
+								return Error(`Merge conflict detected. Please resolve conflicts manually. \n${pullError.message}`);
+							})
+							.catch(e => {
+								console.error('Error aborting merge:', e);
+								return Error(e.message);
+							});
+					}
+				})
+				.catch(e => {
+					console.error('Error checking merge conflicts:', e);
+					return e;
+				});
+
 		}
 
 		// Add only the configs folder
 		console.log('Adding configs folder...');
-		await git.add(configDir);
+		await git.add(configDir)
+			.catch(e => {
+				console.error('Error adding configs folder:', e);
+				return Error(e.message);
+			});
 
 		// Commit changes
 		console.log('Committing changes...');
-		await git.commit('Sync mock configs');
+		await git.commit('Sync mock configs')
+			.catch(e => {
+				console.error('Error committing changes:', e);
+				return Error(e.message);
+			});
 
 		// Push to remote
 		console.log('Pushing to remote repository...');
-		await git.push('origin', gitBranch);
-	}
+		await git.push('origin', gitBranch)
+			.catch(e => {
+				console.error('Error pushing to remote repository:', e);
+				return Error(e.message);
+			});
 
-	// Clean up SSH key
-	try {
-		if (fs.existsSync(sshKeyPath)) {
-			fs.unlinkSync(sshKeyPath);
-			console.log('SSH key cleaned up successfully.');
+		// Clean up SSH key
+		try {
+			if (fs.existsSync(sshKeyPath)) {
+				fs.unlinkSync(sshKeyPath);
+				console.log('SSH key cleaned up successfully.');
+			}
+		} catch (cleanupError: any) {
+			console.error('Error cleaning up SSH key:', cleanupError?.message);
 		}
-	} catch (cleanupError: any) {
-		console.error('Error cleaning up SSH key:', cleanupError?.message);
+
+		return null;
+
 	}
 
 	return null;
-
 }
