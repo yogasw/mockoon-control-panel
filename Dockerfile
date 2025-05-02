@@ -77,7 +77,11 @@ COPY package.json ./
 # Expose Traefik default port
 EXPOSE 80
 
-# Start services
-CMD traefik --configFile=/app/configs/traefik/traefik.yml & \
-    npm run start --prefix backend & \
-    npx serve -s frontend/build -l 3005
+# Copy the entrypoint script
+COPY docker-entrypoint.sh /app/docker-entrypoint.sh
+
+# Set execute permission for the script
+RUN chmod +x /app/docker-entrypoint.sh
+
+# Use the entrypoint script
+CMD ["/app/docker-entrypoint.sh"]
