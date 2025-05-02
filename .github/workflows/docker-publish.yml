@@ -73,27 +73,40 @@ jobs:
           previous=$(git tag --sort=-creatordate | grep -v "v${{ steps.read_version.outputs.version }}" | head -n 1)
           echo "previous_tag=$previous" >> $GITHUB_OUTPUT
 
-      - name: Generate release notes
-        id: release_notes
+      - name: Call Gemini to generate release title and summary
+        id: ai_summary
         run: |
-          notes=$(git log ${{ steps.previous_tag.outputs.previous_tag }}..HEAD --pretty=format:"- %s (%an)" | tail -n +2)
-          echo "notes<<EOF" >> $GITHUB_OUTPUT
-          echo "$notes" >> $GITHUB_OUTPUT
+          LOG=$(git log ${{ steps.previous_tag.outputs.previous_tag }}..HEAD --pretty=format:"- %s (%an)" | tail -n +2 | jq -Rs .)
+          PROMPT="Summarize the following commit logs and suggest a concise release title:\n\n$LOG"
+          RESPONSE=$(curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
+            -H 'Content-Type: application/json' \
+            -X POST \
+            -d '{
+              "contents": [{
+                "parts": [{"text": '"$PROMPT"'}]
+              }]
+            }')
+          OUTPUT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
+          TITLE=$(echo "$OUTPUT" | head -n 1)
+          SUMMARY=$(echo "$OUTPUT" | tail -n +2)
+          echo "title=$TITLE" >> $GITHUB_OUTPUT
+          echo "summary<<EOF" >> $GITHUB_OUTPUT
+          echo "$SUMMARY" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ steps.read_version.outputs.version }}
-          name: v${{ steps.read_version.outputs.version }}
-          body: ${{ steps.release_notes.outputs.notes }}
+          name: ${{ steps.ai_summary.outputs.title }}
+          body: ${{ steps.ai_summary.outputs.summary }}
 
       - name: Update CHANGELOG.md
         run: |
           tempfile=$(mktemp)
-          echo "## v${{ steps.read_version.outputs.version }}" >> $tempfile
+          echo "## v${{ steps.read_version.outputs.version }} - ${{ steps.ai_summary.outputs.title }}" >> $tempfile
           echo "" >> $tempfile
-          git log ${{ steps.previous_tag.outputs.previous_tag }}..HEAD --pretty=format:"- %s (%an)" | tail -n +2 >> $tempfile
+          echo "${{ steps.ai_summary.outputs.summary }}" >> $tempfile
           echo "" >> $tempfile
           [ -f CHANGELOG.md ] && cat CHANGELOG.md >> $tempfile
           mv $tempfile CHANGELOG.md
