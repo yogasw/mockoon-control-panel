@@ -18,7 +18,7 @@ else
 fi
 
 echo "Updating schema.prisma with provider: $PROVIDER"
-sed -i "s/provider = \".*\"/provider = \"$PROVIDER\"/" backend/src/prisma/schema.prisma
+sed -i 's/provider = "sqlite"/provider = "'"$PROVIDER"'"/' /app/backend/src/prisma/schema.prisma
 
 # Run database migration
 echo "Running database migration..."
