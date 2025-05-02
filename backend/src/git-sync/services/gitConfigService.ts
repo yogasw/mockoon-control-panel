@@ -1,6 +1,6 @@
 import { GetSystemConfig, SetSystemConfig, SystemConfigKey } from '@/utils/systemConfig';
 import { SyncConfigsToGit } from '@/git-sync/services/SyncConfigs';
-import { isValidEmail, isValidSshKey, isValidSshUrl } from '@/utils/validationUtils';
+import { isValidEmail, isValidSshUrl } from '@/utils/validationUtils';
 
 interface GitConfig {
 	gitUrl?: string;
@@ -26,16 +26,13 @@ export const SaveGitConfigService = async (config: GitConfig): Promise<{ success
 	if (gitBranch && typeof gitBranch !== 'string') {
 		return { success: false, message: 'Git branch must be a string' };
 	}
-	if (sshKey && !isValidSshKey(sshKey)) {
-		return { success: false, message: 'Invalid SSH key format' };
-	}
 
 	// Save only provided fields
 	if (gitName) await SetSystemConfig(SystemConfigKey.GIT_NAME, gitName);
 	if (gitEmail) await SetSystemConfig(SystemConfigKey.GIT_EMAIL, gitEmail);
 	if (gitUrl) await SetSystemConfig(SystemConfigKey.GIT_URL, gitUrl);
 	if (gitBranch) await SetSystemConfig(SystemConfigKey.GIT_BRANCH, gitBranch);
-	if (sshKey) await SetSystemConfig(SystemConfigKey.SSH_KEY, sshKey);
+	if (sshKey && sshKey != '') await SetSystemConfig(SystemConfigKey.SSH_KEY, sshKey);
 
 	return { success: true, message: 'Git configuration saved successfully' };
 };
