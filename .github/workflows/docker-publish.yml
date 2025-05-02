@@ -66,6 +66,7 @@ jobs:
         uses: actions/github-script@v6
         with:
           script: |
+            console.log("Fetching PR data...");
             const { data: pulls } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
@@ -74,7 +75,7 @@ jobs:
               direction: "desc",
               per_page: 5
             });
-
+            
             const pr = pulls.find(pr => pr.merge_commit_sha === context.sha);
             if (!pr) {
               core.setFailed("No matching merged PR found.");
@@ -102,8 +103,8 @@ jobs:
           PR_BODY="${{ steps.pr_data.outputs.body }}"
           COMMITS="${{ steps.pr_data.outputs.commit_log }}"
 
-          PROMPT="Release version: $VERSION\n\nPull Request: $PR_TITLE\n\nDescription:\n$PR_BODY\n\nCommits:\n$COMMITS\n\nou are an agent responsible for generating GitHub release summaries from pull request commits. Write the summary using only a numbered list under the relevant categories: New Features, Improvements, or Bug Fixes. Only include categories that are present based on the commit messages. Do not add any introductory sentences like "This release includes..." or "In this version...". Go straight to the list, and describe each item as specifically as possible based on the available commit details. Maintain a clear, professional tone appropriate for public changelogs."
-
+          PROMPT=$(printf "Release version: %s\n\nPull Request: %s\n\nDescription:\n%s\n\nCommits:\n%s\n\nYou are an agent responsible for generating GitHub release summaries from pull request commits. Write the summary using only a numbered list under the relevant categories: New Features, Improvements, or Bug Fixes. Only include categories that are present based on the commit messages. Do not add any introductory sentences like \"This release includes...\" or \"In this version...\". Go straight to the list, and describe each item as specifically as possible based on the available commit details. Maintain a clear, professional tone appropriate for public changelogs." "$VERSION" "$PR_TITLE" "$PR_BODY" "$COMMITS")
+          echo "Prompt: $PROMPT"
           RESPONSE=$(curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
             -H 'Content-Type: application/json' \
             -X POST \
