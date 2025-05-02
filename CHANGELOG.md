@@ -1,3 +1,17 @@
+## v3.2.2 - v3.2.2
+_Released on 
+
+Okay, based on the information provided (Release version v3.2.2 and a blank commit list), I can only generate a very basic release summary.  It indicates a patch release.
+**Release Summary: v3.2.2**
+
+This release includes the following:
+
+*   General bug fixes and minor improvements. (Since there's no commit data, this is a safe assumption for a patch release)
+
+**Note:** Without more detailed information from the commit messages, a more specific and informative release summary cannot be created. Ideally, the commit messages should describe the changes made.
+
+If you can provide the commit list or any other details about the changes, I can create a much better release summary.
+
 ## v3.2.1 - v3.2.1
 _Released on 
 
