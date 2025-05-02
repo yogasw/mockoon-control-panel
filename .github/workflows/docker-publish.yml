@@ -47,25 +47,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-#      - name: Build Docker image
-#        run: |
-#          REPO_NAME=$(basename ${{ github.repository }})
-#          VERSION=${{ steps.read_version.outputs.version }}
-#          docker build -f Dockerfile -t ghcr.io/${{ github.repository_owner }}/$REPO_NAME:$VERSION .
-#          docker tag ghcr.io/${{ github.repository_owner }}/$REPO_NAME:$VERSION ghcr.io/${{ github.repository_owner }}/$REPO_NAME:latest
-#
-#      - name: Push Docker image
-#        run: |
-#          REPO_NAME=$(basename ${{ github.repository }})
-#          VERSION=${{ steps.read_version.outputs.version }}
-#          docker push ghcr.io/${{ github.repository_owner }}/$REPO_NAME:$VERSION
-#          docker push ghcr.io/${{ github.repository_owner }}/$REPO_NAME:latest
-
-      - name: Get previous tag
-        id: previous_tag
+      - name: Build Docker image
         run: |
-          previous=$(git tag --sort=-creatordate | grep -v "v${{ steps.read_version.outputs.version }}" | head -n 1)
-          echo "previous_tag=$previous" >> $GITHUB_OUTPUT
+          REPO_NAME=$(basename ${{ github.repository }})
+          VERSION=${{ steps.read_version.outputs.version }}
+          docker build -f Dockerfile -t ghcr.io/${{ github.repository_owner }}/$REPO_NAME:$VERSION .
+          docker tag ghcr.io/${{ github.repository_owner }}/$REPO_NAME:$VERSION ghcr.io/${{ github.repository_owner }}/$REPO_NAME:latest
+
+      - name: Push Docker image
+        run: |
+          REPO_NAME=$(basename ${{ github.repository }})
+          VERSION=${{ steps.read_version.outputs.version }}
+          docker push ghcr.io/${{ github.repository_owner }}/$REPO_NAME:$VERSION
+          docker push ghcr.io/${{ github.repository_owner }}/$REPO_NAME:latest
 
       - name: Get PR Info via GitHub API
         id: pr_data
@@ -100,7 +94,6 @@ jobs:
             core.setOutput("commit_log", messages.join('\\n'));
 
 
-
       - name: Call Gemini to generate release summary
         id: ai_summary
         run: |
@@ -109,7 +102,7 @@ jobs:
           PR_BODY="${{ steps.pr_data.outputs.body }}"
           COMMITS="${{ steps.pr_data.outputs.commit_log }}"
 
-          PROMPT="Release version: $VERSION\n\nPull Request: $PR_TITLE\n\nDescription:\n$PR_BODY\n\nCommits:\n$COMMITS\n\nWrite a release summary including features, improvements, and bug fixes in bullet points."
+          PROMPT="Release version: $VERSION\n\nPull Request: $PR_TITLE\n\nDescription:\n$PR_BODY\n\nCommits:\n$COMMITS\n\nou are an agent responsible for generating GitHub release summaries from pull request commits. Write the summary using only a numbered list under the relevant categories: New Features, Improvements, or Bug Fixes. Only include categories that are present based on the commit messages. Do not add any introductory sentences like "This release includes..." or "In this version...". Go straight to the list, and describe each item as specifically as possible based on the available commit details. Maintain a clear, professional tone appropriate for public changelogs."
 
           RESPONSE=$(curl -s "https://local.yogasw.my.id/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
             -H 'Content-Type: application/json' \
