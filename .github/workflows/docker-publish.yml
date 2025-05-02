@@ -27,6 +27,18 @@ jobs:
           echo "Version: $version"
           echo "version=$version" >> $GITHUB_OUTPUT
 
+      - name: Check if version tag exists
+        id: check_tag
+        run: |
+          TAG_EXISTS=$(git ls-remote --tags origin refs/tags/v${{ steps.read_version.outputs.version }} | wc -l)
+          echo "tag_exists=$TAG_EXISTS" >> $GITHUB_OUTPUT
+
+      - name: Exit if tag already exists
+        if: steps.check_tag.outputs.tag_exists != '0'
+        run: |
+          echo "Version v${{ steps.read_version.outputs.version }} already released. Skipping."
+          exit 0
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -47,3 +59,50 @@ jobs:
           VERSION=${{ steps.read_version.outputs.version }}
           docker push ghcr.io/${{ github.repository_owner }}/$REPO_NAME:$VERSION
           docker push ghcr.io/${{ github.repository_owner }}/$REPO_NAME:latest
+
+      - name: Create Git Tag
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git tag v${{ steps.read_version.outputs.version }}
+          git push origin v${{ steps.read_version.outputs.version }}
+
+      - name: Get previous tag
+        id: previous_tag
+        run: |
+          previous=$(git tag --sort=-creatordate | grep -v "v${{ steps.read_version.outputs.version }}" | head -n 1)
+          echo "previous_tag=$previous" >> $GITHUB_OUTPUT
+
+      - name: Generate release notes
+        id: release_notes
+        run: |
+          notes=$(git log ${{ steps.previous_tag.outputs.previous_tag }}..HEAD --pretty=format:"- %s (%an)" | tail -n +2)
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$notes" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.read_version.outputs.version }}
+          name: v${{ steps.read_version.outputs.version }}
+          body: ${{ steps.release_notes.outputs.notes }}
+
+      - name: Update CHANGELOG.md
+        run: |
+          tempfile=$(mktemp)
+          echo "## v${{ steps.read_version.outputs.version }}" >> $tempfile
+          echo "" >> $tempfile
+          git log ${{ steps.previous_tag.outputs.previous_tag }}..HEAD --pretty=format:"- %s (%an)" | tail -n +2 >> $tempfile
+          echo "" >> $tempfile
+          [ -f CHANGELOG.md ] && cat CHANGELOG.md >> $tempfile
+          mv $tempfile CHANGELOG.md
+          cat CHANGELOG.md
+
+      - name: Commit and push CHANGELOG.md
+        run: |
+          git config user.name "${{ github.actor }}"
+          git config user.email "${{ github.actor }}@users.noreply.github.com"
+          git add CHANGELOG.md
+          git commit -m "Update CHANGELOG.md for v${{ steps.read_version.outputs.version }}"
+          git push origin release
