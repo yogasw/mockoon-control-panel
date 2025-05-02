@@ -64,9 +64,15 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 		fs.mkdirSync(sshDir, { recursive: true });
 	}
 
+	// Check if SSH_KEY ends with a newline
+	let sshKeyContent = SSH_KEY;
+	if (!SSH_KEY.endsWith('\n')) {
+		sshKeyContent += '\n'; // Add a newline if missing
+	}
+
 	// // Write SSH key to file
 	const sshKeyPath = path.join(sshDir, 'id_rsa');
-	fs.writeFileSync(sshKeyPath, SSH_KEY);
+	fs.writeFileSync(sshKeyPath, sshKeyContent);
 	fs.chmodSync(sshKeyPath, '600');
 
 	const gitDir = path.join(configDir, '.git');
