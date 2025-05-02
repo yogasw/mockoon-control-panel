@@ -72,24 +72,34 @@ jobs:
         run: |
           previous=$(git tag --sort=-creatordate | grep -v "v${{ steps.read_version.outputs.version }}" | head -n 1)
           echo "previous_tag=$previous" >> $GITHUB_OUTPUT
+      - name: Get PR Info
+        id: pr_info
+        run: |
+          PR_TITLE=$(git log --merges -1 --pretty=format:"%s" | sed -E 's/^Merge pull request #[0-9]+ from .+\/(.+)/\1/')
+          PR_BODY=$(git log --merges -1 --pretty=format:"%b")
+          echo "pr_title=$PR_TITLE" >> $GITHUB_OUTPUT
+          echo "pr_body=$PR_BODY" >> $GITHUB_OUTPUT
 
-      - name: Call Gemini to generate release title and summary
+      - name: Call Gemini to generate release summary
         id: ai_summary
         run: |
-          LOG=$(git log ${{ steps.previous_tag.outputs.previous_tag }}..HEAD --pretty=format:"- %s (%an)" | tail -n +2 | jq -Rs .)
-          PROMPT="Summarize the following commit logs and suggest a concise release title:\n\n$LOG"
+          VERSION=v${{ steps.read_version.outputs.version }}
+          LOG=$(git log ${{ steps.previous_tag.outputs.previous_tag }}..HEAD --pretty=format:"- %s (%an)" | jq -Rs .)
+          PR_TITLE=${{ steps.pr_info.outputs.pr_title }}
+          PR_BODY=${{ steps.pr_info.outputs.pr_body }}
+          PROMPT="Release version: $VERSION\n\nPull Request: $PR_TITLE\n\nDescription:\n$PR_BODY\n\nCommits:\n$LOG\n\nWrite a release summary including features, improvements, and bug fixes in bullet points."
+
           RESPONSE=$(curl -s "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
             -H 'Content-Type: application/json' \
             -X POST \
             -d '{
               "contents": [{
-                "parts": [{"text": '"$PROMPT"'}]
+                "parts": [{"text": '"$(jq -Rs <<< "$PROMPT" )"'}]
               }]
             }')
-          OUTPUT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
-          TITLE=$(echo "$OUTPUT" | head -n 1)
-          SUMMARY=$(echo "$OUTPUT" | tail -n +2)
-          echo "title=$TITLE" >> $GITHUB_OUTPUT
+
+          SUMMARY=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
+          echo "title=$VERSION" >> $GITHUB_OUTPUT
           echo "summary<<EOF" >> $GITHUB_OUTPUT
           echo "$SUMMARY" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
