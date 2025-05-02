@@ -34,7 +34,7 @@ ARG TRAEFIK_VERSION=2.10.7
 
 # Set architecture environment from container
 RUN apk update
-RUN apk add --no-cache curl tar gzip sqlite openssl git
+RUN apk add --no-cache curl tar gzip sqlite openssl git ssh
 RUN ARCH=$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/') \
   && echo "Detected architecture: $ARCH" \
   && curl -L "https://github.com/traefik/traefik/releases/download/v${TRAEFIK_VERSION}/traefik_v${TRAEFIK_VERSION}_linux_${ARCH}.tar.gz" \
