@@ -30,17 +30,16 @@ RUN npm run db:generate --prefix backend
 # -------- Stage 2: Production Stage --------
 FROM node:22.15.0-alpine3.21
 
-ARG TRAEFIK_VERSION=2.10.7
-
 # Set architecture environment from container
 RUN apk update
 RUN apk add --no-cache curl tar gzip openssl git openssh
 RUN ARCH=$(uname -m | sed 's/x86_64/amd64/' | sed 's/aarch64/arm64/') \
-  && echo "Detected architecture: $ARCH" \
-  && curl -L "https://github.com/traefik/traefik/releases/download/v${TRAEFIK_VERSION}/traefik_v${TRAEFIK_VERSION}_linux_${ARCH}.tar.gz" \
-  | tar -xz -C /usr/local/bin traefik \
-  && chmod +x /usr/local/bin/traefik
-
+        && echo "Detected architecture: $ARCH" \
+        && TRAEFIK_VERSION=$(curl -s https://api.github.com/repos/traefik/traefik/releases/latest | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/' | sed 's/v//') \
+        && echo "Latest Traefik version: $TRAEFIK_VERSION" \
+        && curl -L "https://github.com/traefik/traefik/releases/download/v${TRAEFIK_VERSION}/traefik_v${TRAEFIK_VERSION}_linux_${ARCH}.tar.gz" \
+        | tar -xz -C /usr/local/bin traefik \
+        && chmod +x /usr/local/bin/traefik
 
 # Remove unnecessary tools
 RUN apk del --no-network curl tar gzip

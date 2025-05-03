@@ -138,11 +138,10 @@ jobs:
         run: |
           tempfile=$(mktemp)
           VERSION=v${{ steps.read_version.outputs.version }}
-          TITLE=${{ steps.ai_summary.outputs.title }}
           DATE=$(date +'%Y-%m-%d')
 
           echo "## $VERSION - $TITLE" >> $tempfile
-          echo "_Released on $DATE_" >> $tempfile
+           echo "_Released on $DATE_" >> $tempfile
           echo "" >> $tempfile
           echo "${{ steps.ai_summary.outputs.summary }}" >> $tempfile
           echo "" >> $tempfile
