@@ -50,7 +50,7 @@
   }
 </script>
 
-<div class="flex flex-1 h-screen">
+<div class="flex flex-1 h-screen" style="height: 83.5vh;">
   <!-- Routes Section -->
   <div class="w-1/3 bg-gray-800 p-4 flex flex-col">
     <div class="bg-gray-700 p-4 rounded mb-4 flex items-center">
@@ -79,7 +79,7 @@
             role="button"
           >
           <span class="text-sm font-bold truncate">
-            <strong>{route.method}</strong> {route.path}
+            <strong>{route.method}</strong> {route.path.length > 30 ? route.path.slice(0, 30) + '...' : route.path}
           </span>
             <button
               class="text-white py-1 px-2 rounded flex items-center"
