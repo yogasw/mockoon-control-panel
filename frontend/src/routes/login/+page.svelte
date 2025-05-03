@@ -15,7 +15,6 @@
 				if (browser) {
 					setLocalStorage('username', username);
 					setLocalStorage('password', password);
-
 					await fetchConfigsStore().then(d => {
 						isAuthenticated.set(true);
 						goto('/');

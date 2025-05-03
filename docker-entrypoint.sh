@@ -31,7 +31,7 @@ traefik --configFile=/app/configs/traefik/traefik.yml &
 npm run start --prefix backend &
 
 # Start Frontend
-npx serve -s frontend/build -l 3005
+npm run start --prefix frontend &
 
 # Wait for all background processes
 wait

@@ -26,18 +26,8 @@
 	let searchTerm = '';
 	let selectedConfig: Config | null = null;
 	let activeTab = 'routes';
-
 	// Check authentication from localStorage
 	$: isLoginPage = $page.url.pathname === '/login';
-	if ($isAuthenticated) {
-		if (browser && isLoginPage) {
-			goto('/');
-		}
-	} else if (!$isAuthenticated) {
-		if (browser && !isLoginPage) {
-			goto('login');
-		}
-	}
 
 	async function fetchConfigs() {
 		try {
@@ -80,6 +70,16 @@
 	}
 
 	onMount(async () => {
+		if ($isAuthenticated) {
+			if (browser && isLoginPage) {
+				await goto('/');
+			}
+		} else if (!$isAuthenticated) {
+			if (browser && !isLoginPage) {
+				await goto('login');
+			}
+		}
+
 		async function initialize() {
 			if ($isAuthenticated) {
 				await fetchConfigs();
