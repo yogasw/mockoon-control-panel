@@ -1,4 +1,4 @@
-## v4.1.0 - v4.1.0
+## v4.1.0
 _Released on 
 
 **Improvements**
@@ -15,14 +15,14 @@ _Released on
 
 1.  Added  store.
 
-## v4.0.0 - v4.0.0
+## v4.0.0
 _Released on 
 
 **New Features**
 
 1.  Adds  providing detailed information about the release.
 
-## v3.2.3 - v3.2.3
+## v3.2.3
 _Released on 
 
 Okay, given the limited information (Release Version: v3.2.3, and Pull Request Description is empty), here's a release summary.  It's based on the assumption that it's a minor release (3.2.x), and therefore likely focuses on bug fixes and minor improvements, rather than major new features.
@@ -52,7 +52,7 @@ This release (v3.2.3) includes bug fixes and minor improvements. Specific detail
 
 If you can provide the *actual* description or list of commits, I can provide a much more accurate and helpful release summary!
 
-## v3.2.2 - v3.2.2
+## v3.2.2
 _Released on 
 
 Okay, based on the information provided (Release version v3.2.2 and a blank commit list), I can only generate a very basic release summary.  It indicates a patch release.
@@ -66,7 +66,7 @@ This release includes the following:
 
 If you can provide the commit list or any other details about the changes, I can create a much better release summary.
 
-## v3.2.1 - v3.2.1
+## v3.2.1
 _Released on 
 
 Okay, here's a release summary based on the provided information.  Since the commit details and specific PR descriptions are missing, it will be very general.  If you can provide more info, I can create a much more detailed and useful summary.
@@ -88,7 +88,7 @@ This release includes the following changes:
 *   **Pull Request Description:** Even a short description can give insight into the intent of the changes.
 *   **Any related issue tracker links:** (e.g., Jira, GitHub Issues)
 
-## v3.2.0 - null
+## v3.2.0
 
 
 
