@@ -293,7 +293,7 @@ async function autoSyncConfigsToGit(): Promise<Error | null> {
 
 		// Push to remote
 		console.log('Pushing to remote repository...');
-		await git.push('origin1', gitBranch)
+		await git.push('origin', gitBranch)
 			.catch(e => {
 				console.error('Error pushing to remote repository:', e);
 				errorResult = new Error(e.message);
