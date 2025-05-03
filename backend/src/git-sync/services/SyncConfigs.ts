@@ -5,7 +5,8 @@ import { CONFIGS_DIR } from '@/lib/constants';
 import { execSync } from 'child_process';
 import { GetSystemConfig, SystemConfigKey } from '@/utils/systemConfig';
 
-export async function SyncConfigsToGit(): Promise<Error | null> {
+async function autoSyncConfigsToGit(): Promise<Error | null> {
+	let errorResult: Error | null = null;
 	const GIT_NAME = await GetSystemConfig(SystemConfigKey.GIT_NAME) as string;
 	const GIT_EMAIL = await GetSystemConfig(SystemConfigKey.GIT_EMAIL) as string;
 	const GIT_URL = await GetSystemConfig(SystemConfigKey.GIT_URL) as string;
@@ -15,7 +16,6 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 	const configDir = CONFIGS_DIR;
 	const git = simpleGit(configDir);
 	const gitBranch = GIT_BRANCH;
-
 
 	// Check and set Git user.name and user.email
 	try {
@@ -44,7 +44,8 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 		}
 	} catch (error) {
 		console.error('Error checking or setting Git configuration:', error);
-		return new Error('Failed to check or set Git user.name and user.email.');
+		errorResult = new Error('Error checking or setting Git configuration');
+		return errorResult;
 	}
 
 	if (!GIT_URL || !SSH_KEY) {
@@ -83,23 +84,26 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 		console.log('Initializing Git repository...');
 		await git.init().catch(e => {
 			console.error('Error initializing Git repository:', e);
-			return Error(e.message);
+			errorResult = new Error(e.message);
 		});
+		if (errorResult) return errorResult;
 
 		// Configure Git
 		await git.addConfig('core.sshCommand', `ssh -i ${sshKeyPath} -o StrictHostKeyChecking=no`)
 			.catch(e => {
 				console.error('Error configuring Git:', e);
-				return Error(e.message);
+				errorResult = new Error(e.message);
 			});
+		if (errorResult) return errorResult;
 
 		// Add remote
 		console.log('Adding remote repository...');
 		await git.addRemote('origin', GIT_URL)
 			.catch(e => {
 				console.error('Error adding remote repository:', e);
-				return Error(e.message);
+				errorResult = new Error(e.message);
 			});
+		if (errorResult) return errorResult;
 
 		// Pull changes from the remote repository
 		console.log('Pulling changes from remote repository...');
@@ -108,14 +112,16 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 			await git.fetch('origin', gitBranch)
 				.catch(e => {
 					console.error('Error fetching from remote repository:', e);
-					return Error(e.message);
+					errorResult = new Error(e.message);
 				});
+			if (errorResult) return errorResult;
 			// Step 2: Forcefully reset the local branch to match the remote branch
 			await git.reset(['--hard', `origin/${gitBranch}`])
 				.catch(e => {
 					console.error('Error resetting local branch:', e);
-					return Error(e.message);
+					errorResult = new Error(e.message);
 				});
+			if (errorResult) return errorResult;
 		} catch (pullError: any) {
 			if (pullError.message.includes('There is no tracking information for the current branch')) {
 				console.log('No tracking information found. Setting upstream branch...');
@@ -149,41 +155,67 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 		console.log('Adding configs folder...');
 		await git.add(configDir).catch(e => {
 			console.error('Error adding configs folder:', e);
-			return Error(e.message);
+			errorResult = new Error(e.message);
 		});
+		if (errorResult) return errorResult;
 
 		// Initial commit
 		console.log('Creating initial commit...');
 		await git.commit('Initial commit: Add mock configurations')
 			.catch(e => {
 				console.error('Error creating initial commit:', e);
-				return Error(e.message);
+				errorResult = new Error(e.message);
 			});
+		if (errorResult) return errorResult;
 
 		// Push to remote
 		console.log('Pushing to remote repository...');
 		await git.push('origin', gitBranch)
 			.catch(e => {
 				console.error('Error pushing to remote repository:', e);
-				return Error(e.message);
+				errorResult = new Error(e.message);
 			});
+		if (errorResult) return errorResult;
 	} else {
+
+		// Repository already initialized, check if remote is set
+		const remotes = await git.getRemotes(true)
+			.catch(e => {
+				console.error('Error getting remote repositories:', e);
+				errorResult = new Error(e.message);
+			});
+		if (errorResult) return errorResult;
+		// check origin is set not same as GIT_URL change it
+		if (remotes) {
+			const originRemote = remotes.find(remote => remote.name === 'origin');
+			if (originRemote && originRemote.refs.fetch !== GIT_URL) {
+				console.log('Changing remote URL...');
+				await git.remote(['set-url', 'origin', GIT_URL])
+					.catch(e => {
+						console.error('Error changing remote URL:', e);
+						errorResult = new Error(e.message);
+					});
+				if (errorResult) return errorResult;
+			}
+		}
 
 		//check current branch
 		const currentBranch = await git.branch()
 			.then(branches => branches.current)
 			.catch(e => {
 				console.error('Error getting current branch:', e);
-				return Error(e.message);
+				errorResult = new Error(e.message);
 			});
+		if (errorResult) return errorResult;
 
 		if (currentBranch !== gitBranch) {
 			console.log(`Switching to branch ${gitBranch}...`);
 			await git.checkout(gitBranch)
 				.catch(e => {
 					console.error('Error switching branches:', e);
-					return Error(e.message);
+					errorResult = new Error(e.message);
 				});
+			if (errorResult) return errorResult;
 		}
 
 		// Pull changes first
@@ -200,22 +232,25 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 			await git.stash()
 				.catch(e => {
 					console.error('Error stashing changes:', e);
-					return Error(e.message);
+					errorResult = new Error(e.message);
 				});
+			if (errorResult) return errorResult;
 
 			// Pull again
 			await git.pull('origin', gitBranch)
 				.catch(e => {
 					console.error('Error pulling changes after stash:', e);
-					return Error(e.message);
+					errorResult = new Error(e.message);
 				});
+			if (errorResult) return errorResult;
 
 			// Apply stashed changes
 			await git.stash(['pop'])
 				.catch(e => {
 					console.error('Error applying stashed changes:', e);
-					return Error(e.message);
+					errorResult = new Error(e.message);
 				});
+			if (errorResult) return errorResult;
 
 // If there are conflicts, abort the merge
 			await git.status()
@@ -233,9 +268,9 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 				})
 				.catch(e => {
 					console.error('Error checking merge conflicts:', e);
-					return e;
+					errorResult = new Error(e.message);
 				});
-
+			if (errorResult) return errorResult;
 		}
 
 		// Add only the configs folder
@@ -243,38 +278,55 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 		await git.add(configDir)
 			.catch(e => {
 				console.error('Error adding configs folder:', e);
-				return Error(e.message);
+				errorResult = new Error(e.message);
 			});
+		if (errorResult) return errorResult;
 
 		// Commit changes
 		console.log('Committing changes...');
 		await git.commit('Sync mock configs')
 			.catch(e => {
 				console.error('Error committing changes:', e);
-				return Error(e.message);
+				errorResult = new Error(e.message);
 			});
+		if (errorResult) return errorResult;
 
 		// Push to remote
 		console.log('Pushing to remote repository...');
 		await git.push('origin', gitBranch)
 			.catch(e => {
 				console.error('Error pushing to remote repository:', e);
-				return Error(e.message);
+				errorResult = new Error(e.message);
 			});
-
-		// Clean up SSH key
-		try {
-			if (fs.existsSync(sshKeyPath)) {
-				fs.unlinkSync(sshKeyPath);
-				console.log('SSH key cleaned up successfully.');
-			}
-		} catch (cleanupError: any) {
-			console.error('Error cleaning up SSH key:', cleanupError?.message);
-		}
-
-		return null;
-
+		return errorResult;
 	}
 
-	return null;
+	return errorResult;
+}
+
+export const CleanupSSHKey = async () => {
+	const sshDir = path.join(CONFIGS_DIR, '.ssh');
+	const sshKeyPath = path.join(sshDir, 'id_rsa');
+	// Clean up SSH key
+	try {
+		if (fs.existsSync(sshKeyPath)) {
+			fs.unlinkSync(sshKeyPath);
+			console.log('SSH key cleaned up successfully.');
+		}
+	} catch (cleanupError: any) {
+		console.error('Error cleaning up SSH key:', cleanupError?.message);
+	}
+};
+
+export async function SyncConfigsToGit(): Promise<Error | null> {
+	const error = await autoSyncConfigsToGit();
+	if (error) {
+		console.error('Error syncing configs to Git:', error.message);
+	} else {
+		console.log('Successfully synced configs to Git repository.');
+	}
+
+	// Cleanup SSH key
+	await CleanupSSHKey();
+	return error;
 }

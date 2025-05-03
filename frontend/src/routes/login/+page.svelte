@@ -15,9 +15,9 @@
 				if (browser) {
 					setLocalStorage('username', username);
 					setLocalStorage('password', password);
-					await fetchConfigsStore().then(d => {
+					await fetchConfigsStore().then(async d => {
 						isAuthenticated.set(true);
-						goto('/');
+						await goto('/home');
 					}).catch(e => {
 						error = 'Login failed. Please try again.';
 					});
