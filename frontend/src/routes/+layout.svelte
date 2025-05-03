@@ -4,13 +4,13 @@
 	import { goto } from '$app/navigation';
 	import ConfigurationList from '$lib/components/ConfigurationList.svelte';
 	import Header from '$lib/components/Header.svelte';
-	import { isOwnAuth, removeLocalStorage } from '$lib/utils/localStorage';
-	import { browser } from '$app/environment';
+	import { removeLocalStorage } from '$lib/utils/localStorage';
 	import { getConfigs, getMockStatus } from '$lib/api/mockoonApi';
 	import { onMount } from 'svelte';
 	import { configurations } from '$lib/stores/configurations';
 	import Toast from '$lib/components/Toast.svelte';
 	import { isAuthenticated } from '$lib/stores/authentication';
+	import { browser } from '$app/environment';
 
 	interface Config {
 		uuid: string;
@@ -29,24 +29,21 @@
 
 	// Check authentication from localStorage
 	$: isLoginPage = $page.url.pathname === '/login';
-
-	// Redirect to login if not authenticated and not on login page
-	$: if (!$isAuthenticated && !isLoginPage) {
-		if (browser) {
-			goto('/login');
-		}
-	}
-
-	// Redirect to home if authenticated and on login page
-	$: if ($isAuthenticated && isLoginPage) {
-		if (browser) {
+	if ($isAuthenticated) {
+		if (browser && isLoginPage) {
 			goto('/');
+		}
+	} else if (!$isAuthenticated) {
+		if (browser && !isLoginPage) {
+			goto('login');
 		}
 	}
 
 	async function fetchConfigs() {
 		try {
-			configurations.set(await getConfigs());
+			await getConfigs().then(d => {
+				configurations.set(d);
+			});
 		} catch (err) {
 			console.error('Failed to fetch configs:', err);
 		}
@@ -56,36 +53,38 @@
 		if (!$isAuthenticated) {
 			return;
 		}
+
 		try {
-			const status = await getMockStatus();
-			// Update configurations with latest status
-			configurations.update(configs => configs.map(config => {
-				let inUse = false;
-				if (status.length > 0) {
-					status.forEach(d => {
-						if (d.uuid === config.uuid) {
-							inUse = true;
-						}
-					});
-				}
-				return {
-					...config,
-					inUse: inUse
-				};
-			}));
+			await getMockStatus().then(status => {
+				// Update configurations with latest status
+				configurations.update(configs => configs.map(config => {
+					let inUse = false;
+					if (status.length > 0) {
+						status.forEach(d => {
+							if (d.uuid === config.uuid) {
+								inUse = true;
+							}
+						});
+					}
+					return {
+						...config,
+						inUse: inUse
+					};
+				}));
+			}).catch(e => {
+				console.error('Failed to fetch status:', e);
+			});
 		} catch (err) {
 			console.error('Failed to fetch status:', err);
 		}
 	}
 
-	onMount(() => {
+	onMount(async () => {
 		async function initialize() {
-			if (isOwnAuth()){
-				isAuthenticated.set(true)
+			if ($isAuthenticated) {
+				await fetchConfigs();
+				await fetchStatus();
 			}
-
-			await fetchConfigs();
-			await fetchStatus();
 			// Set up interval to refresh status every 5 seconds
 			const interval = setInterval(fetchStatus, 15000);
 
@@ -124,7 +123,7 @@
 	}
 
 	function handleLogout() {
-		isAuthenticated.set(false)
+		isAuthenticated.set(false);
 		removeLocalStorage('username');
 		removeLocalStorage('password');
 		window.location.href = '/login';

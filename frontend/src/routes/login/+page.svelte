@@ -12,13 +12,16 @@
 	async function handleLogin() {
 		try {
 			if (username && password) {
-				// For now, just set authentication state and redirect
-				isAuthenticated.set(true);
-				setLocalStorage('username', username);
-				setLocalStorage('password', password);
 				if (browser) {
-					await fetchConfigsStore();
-					goto('/');
+					setLocalStorage('username', username);
+					setLocalStorage('password', password);
+
+					await fetchConfigsStore().then(d => {
+						isAuthenticated.set(true);
+						goto('/');
+					}).catch(e => {
+						error = 'Login failed. Please try again.';
+					});
 				}
 			} else {
 				error = 'Please enter both username and password';
