@@ -32,6 +32,16 @@
 
   let selectedRoute: Route | null = null;
   let responseBody: string = '';
+  let filterText: string = ''; // Variable to store filter input
+
+  // Reactive statement to filter routes
+  $: filteredRoutes = routes.filter(route => {
+    const filterParts = filterText.toLowerCase().split(' '); // Split filterText by spaces
+    return filterParts.every(part =>
+      route.path.toLowerCase().includes(part) ||
+      route.method.toLowerCase().includes(part)
+    );
+  });
 
   function selectRoute(route: Route) {
     selectedRoute = route;
@@ -64,13 +74,14 @@
       <input
         type="text"
         id="route-search"
-        placeholder="Search Path"
+        placeholder="Search Path or Method"
         class="w-full bg-gray-700 text-white py-1 px-2 rounded text-sm"
+        bind:value={filterText}
       />
     </div>
     <div class="flex-1 overflow-y-auto hide-scrollbar">
       <div class="space-y-4 pr-2 py-2">
-        {#each routes as route}
+        {#each filteredRoutes as route}
           <div
             class="flex items-center justify-between bg-gray-700 p-4 rounded cursor-pointer {selectedRoute === route ? 'border-2 border-blue-500' : ''}"
             on:click={() => selectRoute(route)}
