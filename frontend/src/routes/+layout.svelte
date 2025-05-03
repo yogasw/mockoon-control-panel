@@ -5,12 +5,12 @@
 	import ConfigurationList from '$lib/components/ConfigurationList.svelte';
 	import Header from '$lib/components/Header.svelte';
 	import { isOwnAuth, removeLocalStorage } from '$lib/utils/localStorage';
-	import { browser } from '$app/environment';
 	import { getConfigs, getMockStatus } from '$lib/api/mockoonApi';
 	import { onMount } from 'svelte';
 	import { configurations } from '$lib/stores/configurations';
 	import Toast from '$lib/components/Toast.svelte';
 	import { isAuthenticated } from '$lib/stores/authentication';
+	import { browser } from '$app/environment';
 
 	interface Config {
 		uuid: string;
@@ -26,27 +26,14 @@
 	let searchTerm = '';
 	let selectedConfig: Config | null = null;
 	let activeTab = 'routes';
-
 	// Check authentication from localStorage
 	$: isLoginPage = $page.url.pathname === '/login';
 
-	// Redirect to login if not authenticated and not on login page
-	$: if (!$isAuthenticated && !isLoginPage) {
-		if (browser) {
-			goto('/login');
-		}
-	}
-
-	// Redirect to home if authenticated and on login page
-	$: if ($isAuthenticated && isLoginPage) {
-		if (browser) {
-			goto('/');
-		}
-	}
-
 	async function fetchConfigs() {
 		try {
-			configurations.set(await getConfigs());
+			await getConfigs().then(d => {
+				configurations.set(d);
+			});
 		} catch (err) {
 			console.error('Failed to fetch configs:', err);
 		}
@@ -56,36 +43,50 @@
 		if (!$isAuthenticated) {
 			return;
 		}
+
 		try {
-			const status = await getMockStatus();
-			// Update configurations with latest status
-			configurations.update(configs => configs.map(config => {
-				let inUse = false;
-				if (status.length > 0) {
-					status.forEach(d => {
-						if (d.uuid === config.uuid) {
-							inUse = true;
-						}
-					});
-				}
-				return {
-					...config,
-					inUse: inUse
-				};
-			}));
+			await getMockStatus().then(status => {
+				// Update configurations with latest status
+				configurations.update(configs => configs.map(config => {
+					let inUse = false;
+					if (status.length > 0) {
+						status.forEach(d => {
+							if (d.uuid === config.uuid) {
+								inUse = true;
+							}
+						});
+					}
+					return {
+						...config,
+						inUse: inUse
+					};
+				}));
+			}).catch(e => {
+				console.error('Failed to fetch status:', e);
+			});
 		} catch (err) {
 			console.error('Failed to fetch status:', err);
 		}
 	}
 
-	onMount(() => {
-		async function initialize() {
-			if (isOwnAuth()){
+	onMount(async () => {
+		console.log("onMount: layout");
+		if (isOwnAuth() && !$isAuthenticated && !isLoginPage) {
+			await getConfigs().then(async d => {
 				isAuthenticated.set(true)
-			}
+				await goto('/home');
+			}).catch(async e => {
+				console.error('Failed to fetch configs:', e);
+				isAuthenticated.set(false)
+				await goto('/login');
+			})
+		}
 
-			await fetchConfigs();
-			await fetchStatus();
+		async function initialize() {
+			if ($isAuthenticated) {
+				await fetchConfigs();
+				await fetchStatus();
+			}
 			// Set up interval to refresh status every 5 seconds
 			const interval = setInterval(fetchStatus, 15000);
 
@@ -124,19 +125,18 @@
 	}
 
 	function handleLogout() {
-		isAuthenticated.set(false)
+		isAuthenticated.set(false);
 		removeLocalStorage('username');
 		removeLocalStorage('password');
-		window.location.href = '/login';
+		goto("/login")
 	}
 </script>
 
-{#if isLoginPage}
+{#if isLoginPage || !$isAuthenticated}
 	<slot />
 {:else}
 	<div class="flex h-screen bg-gray-900 text-white font-sans">
 		<ConfigurationList
-			configurations={$configurations}
 			{searchTerm}
 			on:selectConfiguration={handleConfigSelect}
 			on:startConfiguration={handleConfigStart}
@@ -144,7 +144,7 @@
 		/>
 
 		<div class="flex-1 flex flex-col">
-			<Header {activeTab} on:tabChange={handleTabChange} handleLogout={handleLogout} />
+			<Header on:tabChange={handleTabChange} handleLogout={handleLogout} />
 			<slot activeTab={activeTab} />
 		</div>
 	</div>

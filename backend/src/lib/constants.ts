@@ -21,5 +21,5 @@ export const PROXY_MODE = process.env.PROXY_MODE !== 'false';
 export const PROXY_BASE_URL = process.env.PROXY_BASE_URL || '';
 
 // AUTH
-export const API_KEY = process.env.API_KEY || 'admin:mockoon';
+export const API_KEY = process.env.API_KEY || 'admin:admin';
 
