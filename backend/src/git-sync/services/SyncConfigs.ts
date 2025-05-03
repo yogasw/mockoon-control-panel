@@ -5,7 +5,7 @@ import { CONFIGS_DIR } from '@/lib/constants';
 import { execSync } from 'child_process';
 import { GetSystemConfig, SystemConfigKey } from '@/utils/systemConfig';
 
-export async function SyncConfigsToGit(): Promise<Error | null> {
+async function autoSyncConfigsToGit(): Promise<Error | null> {
 	let errorResult: Error | null = null;
 	const GIT_NAME = await GetSystemConfig(SystemConfigKey.GIT_NAME) as string;
 	const GIT_EMAIL = await GetSystemConfig(SystemConfigKey.GIT_EMAIL) as string;
@@ -16,7 +16,6 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 	const configDir = CONFIGS_DIR;
 	const git = simpleGit(configDir);
 	const gitBranch = GIT_BRANCH;
-
 
 	// Check and set Git user.name and user.email
 	try {
@@ -294,26 +293,40 @@ export async function SyncConfigsToGit(): Promise<Error | null> {
 
 		// Push to remote
 		console.log('Pushing to remote repository...');
-		await git.push('origin', gitBranch)
+		await git.push('origin1', gitBranch)
 			.catch(e => {
 				console.error('Error pushing to remote repository:', e);
 				errorResult = new Error(e.message);
 			});
-		if (errorResult) return errorResult;
-
-		// Clean up SSH key
-		try {
-			if (fs.existsSync(sshKeyPath)) {
-				fs.unlinkSync(sshKeyPath);
-				console.log('SSH key cleaned up successfully.');
-			}
-		} catch (cleanupError: any) {
-			console.error('Error cleaning up SSH key:', cleanupError?.message);
-		}
-
 		return errorResult;
-
 	}
 
 	return errorResult;
+}
+
+export const CleanupSSHKey = async () => {
+	const sshDir = path.join(CONFIGS_DIR, '.ssh');
+	const sshKeyPath = path.join(sshDir, 'id_rsa');
+	// Clean up SSH key
+	try {
+		if (fs.existsSync(sshKeyPath)) {
+			fs.unlinkSync(sshKeyPath);
+			console.log('SSH key cleaned up successfully.');
+		}
+	} catch (cleanupError: any) {
+		console.error('Error cleaning up SSH key:', cleanupError?.message);
+	}
+};
+
+export async function SyncConfigsToGit(): Promise<Error | null> {
+	const error = await autoSyncConfigsToGit();
+	if (error) {
+		console.error('Error syncing configs to Git:', error.message);
+	} else {
+		console.log('Successfully synced configs to Git repository.');
+	}
+
+	// Cleanup SSH key
+	await CleanupSSHKey();
+	return error;
 }
