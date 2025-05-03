@@ -4,7 +4,7 @@
 	import { goto } from '$app/navigation';
 	import ConfigurationList from '$lib/components/ConfigurationList.svelte';
 	import Header from '$lib/components/Header.svelte';
-	import { removeLocalStorage } from '$lib/utils/localStorage';
+	import { isOwnAuth, removeLocalStorage } from '$lib/utils/localStorage';
 	import { getConfigs, getMockStatus } from '$lib/api/mockoonApi';
 	import { onMount } from 'svelte';
 	import { configurations } from '$lib/stores/configurations';
@@ -70,14 +70,16 @@
 	}
 
 	onMount(async () => {
-		if ($isAuthenticated) {
-			if (browser && isLoginPage) {
-				await goto('/');
-			}
-		} else if (!$isAuthenticated) {
-			if (browser && !isLoginPage) {
-				await goto('login');
-			}
+		console.log("onMount: layout");
+		if (isOwnAuth() && !$isAuthenticated && !isLoginPage) {
+			await getConfigs().then(async d => {
+				isAuthenticated.set(true)
+				await goto('/home');
+			}).catch(async e => {
+				console.error('Failed to fetch configs:', e);
+				isAuthenticated.set(false)
+				await goto('/login');
+			})
 		}
 
 		async function initialize() {
@@ -126,16 +128,15 @@
 		isAuthenticated.set(false);
 		removeLocalStorage('username');
 		removeLocalStorage('password');
-		window.location.href = '/login';
+		goto("/login")
 	}
 </script>
 
-{#if isLoginPage}
+{#if isLoginPage || !$isAuthenticated}
 	<slot />
 {:else}
 	<div class="flex h-screen bg-gray-900 text-white font-sans">
 		<ConfigurationList
-			configurations={$configurations}
 			{searchTerm}
 			on:selectConfiguration={handleConfigSelect}
 			on:startConfiguration={handleConfigStart}
@@ -143,7 +144,7 @@
 		/>
 
 		<div class="flex-1 flex flex-col">
-			<Header {activeTab} on:tabChange={handleTabChange} handleLogout={handleLogout} />
+			<Header on:tabChange={handleTabChange} handleLogout={handleLogout} />
 			<slot activeTab={activeTab} />
 		</div>
 	</div>

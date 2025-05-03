@@ -160,6 +160,11 @@
     "@rollup/plugin-node-resolve" "^16.0.0"
     rollup "^4.9.5"
 
+"@sveltejs/adapter-static@^3.0.8":
+  version "3.0.8"
+  resolved "https://registry.npmjs.org/@sveltejs/adapter-static/-/adapter-static-3.0.8.tgz"
+  integrity sha512-YaDrquRpZwfcXbnlDsSrBQNCChVOT9MGuSg+dMAyfsAa1SmiAhrA5jUYUiIMC59G92kIbY/AaQOWcBdq+lh+zg==
+
 "@sveltejs/kit@^2.16.0":
   version "2.20.7"
   resolved "https://registry.npmjs.org/@sveltejs/kit/-/kit-2.20.7.tgz"

@@ -14,7 +14,7 @@ COPY frontend/ ./frontend/
 RUN npm install --prefix backend && npm install --prefix frontend
 
 # Set environment
-ENV VITE_API_BASE_URL "/mock/api"
+ENV VITE_API_BASE_URL="/mock/api"
 
 # Setup Folder and Configurations
 RUN npm run setup --prefix backend

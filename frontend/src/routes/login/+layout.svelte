@@ -1,17 +1,9 @@
 <script lang="ts">
 	import '../../app.css';
 	import { onMount } from 'svelte';
-	import { isOwnAuth } from '$lib/utils/localStorage';
-	import { getConfigs } from '$lib/api/mockoonApi';
-	import { goto } from '$app/navigation';
 
 	onMount(() => {
-		// Check if the user is authenticated
-		if (isOwnAuth()) {
-			getConfigs().then(e => {
-				goto('/home');
-			});
-		}
+		console.log('onMount: login');
 	});
 </script>
 

@@ -1,5 +1,6 @@
 import { getLocalStorage, removeAuthLocalStorage } from '$lib/utils/localStorage';
 import axios from 'axios';
+import { goto } from '$app/navigation';
 
 interface AuthCredentials {
 	username: string;
@@ -54,6 +55,7 @@ api.interceptors.request.use(
 	}
 );
 
+let isRedirectingToLogin = false;
 // Add response interceptor for handling auth errors
 api.interceptors.response.use(
 	response => response,
@@ -62,6 +64,15 @@ api.interceptors.response.use(
 		if (error.response?.status === 401) {
 			console.error('Authentication failed');
 			removeAuthLocalStorage();
+			if (!isRedirectingToLogin) {
+				isRedirectingToLogin = true;
+				setTimeout(() => {
+					isRedirectingToLogin = false;
+				}, 2000);
+				if (window.location.pathname !== '/login') {
+					goto('/login');
+				}
+			}
 		}
 		return Promise.reject(error);
 	}
@@ -134,25 +145,25 @@ export const getConfigDetails = async (uuid: string): Promise<Config> => {
 
 
 export const saveGitConfig = async (config: {
-  gitName: string;
-  gitEmail: string;
-  gitBranch: string;
-  sshKey: string;
-  gitUrl: string;
+	gitName: string;
+	gitEmail: string;
+	gitBranch: string;
+	sshKey: string;
+	gitUrl: string;
 }): Promise<{ success: boolean; message: string }> => {
-  const response = await api.post('/git/save-config', config);
-  return response.data;
+	const response = await api.post('/git/save-config', config);
+	return response.data;
 };
 
 export const saveAndTestSyncGit = async (config: {
-  gitName: string;
-  gitEmail: string;
-  gitBranch: string;
-  sshKey: string;
-  gitUrl: string;
+	gitName: string;
+	gitEmail: string;
+	gitBranch: string;
+	sshKey: string;
+	gitUrl: string;
 }): Promise<{ success: boolean; message: string }> => {
-  const response = await api.post('/git/save-and-test-sync', config);
-  return response.data;
+	const response = await api.post('/git/save-and-test-sync', config);
+	return response.data;
 };
 
 export const getGitConfig = async (): Promise<{

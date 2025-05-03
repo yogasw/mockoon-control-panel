@@ -26,6 +26,7 @@
   export let activeTab = 'routes';
 
   onMount(async () => {
+    console.log("onMount: home");
     loading = true;
     try {
       configurations = await getConfigs();
