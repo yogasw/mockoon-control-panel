@@ -1,3 +1,20 @@
+## v4.1.0 - v4.1.0
+_Released on 
+
+**Improvements**
+
+1.  Refactored authentication flow.
+2.  Refactored layout for authentication check.
+3.  Updated Docker setup.
+
+**Bug Fixes**
+
+1.  Fixed authentication flow.
+
+**New Features**
+
+1.  Added  store.
+
 ## v4.0.0 - v4.0.0
 _Released on 
 
