@@ -123,8 +123,7 @@
 					<option value="PATCH">PATCH</option>
 				</select>
 				<span class="text-gray-400 hidden md:block">{selectedConfig.url}/</span>
-				<input type="text" class="w-full md:flex-1 rounded bg-gray-700 px-4 py-2 text-white"
-							 placeholder="/api/v1/resource" value="{selectedRoute?.path}">
+				<input type="text" class="w-full md:flex-1 rounded bg-gray-700 px-4 py-2 text-white" value="{selectedRoute?.path}">
 				<button
 					class="text-gray-400 hover:text-blue-500 disabled:text-gray-600"
 					disabled={!selectedRoute || selectedRoute?.method !== 'GET'}
@@ -184,40 +183,4 @@
 			</div>
 		</div>
 	</div>
-
-	<!--  <div class="flex w-full md:w-2/3 flex-col overflow-hidden bg-gray-800 p-4">
-			&lt;!&ndash; Single Line for Method, Host, and Full-Width Path &ndash;&gt;
-			<div class="mb-4">
-				<label class="block text-sm font-bold mb-2">Endpoint</label>
-				<div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-					<select class="w-full md:w-1/6 rounded bg-gray-700 px-4 py-2 text-white">
-						<option value="GET">GET</option>
-						<option value="POST">POST</option>
-						<option value="PUT">PUT</option>
-						<option value="DELETE">DELETE</option>
-						<option value="PATCH">PATCH</option>
-					</select>
-					<span class="text-gray-400 hidden md:block">https://api.example.com</span>
-					<input type="text" class="w-full md:flex-1 rounded bg-gray-700 px-4 py-2 text-white" placeholder="/api/v1/resource">
-					<button class="text-gray-400 hover:text-blue-500">
-						<i class="fas fa-external-link-alt"></i>
-					</button>
-				</div>
-				<span class="text-gray-400 block md:hidden mt-2">https://api.example.com</span>
-			</div>
-			<div class="mb-4">
-				<label class="block text-sm font-bold mb-2">Documentation / Short Information</label>
-				<textarea class="w-full rounded bg-gray-700 px-4 py-2 text-white" rows="3" placeholder="Provide a brief description or documentation for this endpoint"></textarea>
-			</div>
-			&lt;!&ndash; Tabs &ndash;&gt;
-			<div class="mb-4 flex flex-wrap space-x-2 space-y-2 md:space-y-0">
-				<button class="rounded bg-blue-500 px-4 py-2 text-white w-full md:w-auto">Status &amp; Body</button>
-				<button class="rounded bg-gray-700 px-4 py-2 text-white w-full md:w-auto">Headers</button>
-				<button class="rounded bg-gray-700 px-4 py-2 text-white w-full md:w-auto">Rules</button>
-				<button class="rounded bg-gray-700 px-4 py-2 text-white w-full md:w-auto">Callbacks</button>
-			</div>
-			<div class="flex-1 overflow-auto">
-				<div class="text-gray-400">Pilih salah satu path untuk melihat detailnya.</div>
-			</div>
-		</div>-->
 </div>
