@@ -1,3 +1,10 @@
+## v4.2.0
+_Released on 
+
+**Improvements**
+
+1.  Simplified the Docker image tagging format in the  workflow.
+
 ## v4.1.1 - 
 _Released on 
 
