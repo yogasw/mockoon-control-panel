@@ -138,7 +138,7 @@
 			<span class="text-gray-400 block md:hidden mt-2"></span>
 		</div>
 		<div class="mb-4">
-			<label class="block text-sm font-bold mb-2">Documentation / Short Information</label>
+			<label class="block text-sm font-bold mb-2">Documentation for this routes</label>
 			<textarea class="w-full rounded bg-gray-700 px-4 py-2 text-white" rows="3"
 								placeholder="Provide a brief description or documentation for this endpoint"></textarea>
 		</div>
