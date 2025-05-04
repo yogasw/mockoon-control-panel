@@ -23,7 +23,7 @@
 			type="text"
 			id="route-search"
 			placeholder="Search Path or Method"
-			class="w-full bg-gray-700 text-white py-1 px-2 rounded text-sm focus:outline-none"
+			class="w-full bg-gray-700 text-white py-1 px-2 rounded text-sm"
 			bind:value={filterText}
 		/>
 	</div>
