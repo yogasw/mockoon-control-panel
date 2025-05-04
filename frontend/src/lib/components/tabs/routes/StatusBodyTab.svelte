@@ -1,5 +1,6 @@
 <script lang="ts">
 	import MonacoEditor from '$lib/components/MonacoEditor.svelte';
+	import { toast } from '$lib/stores/toast';
 
 	export let responseBody: string;
 	export let statusCode: number;
@@ -21,7 +22,7 @@
 		const content = editorRef?.getValue();
 		if (content) {
 			console.log('Saved content:', content);
-			alert('Content saved!');
+			toast.error("this feature is not implemented yet");
 		}
 	}
 
