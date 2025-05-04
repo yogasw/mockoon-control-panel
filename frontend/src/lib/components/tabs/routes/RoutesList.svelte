@@ -1,12 +1,11 @@
 <script lang="ts">
-	import type { Route } from '$lib/types/route';
-
-	export let selectedRoute: Route | null;
+	import type {  MockoonRoute } from '$lib/types/Config';
+	export let selectedRoute: MockoonRoute | null;
 	export let activeConfigName: string;
 	export let filterText: string;
-	export let filteredRoutes: Route[];
-	export let selectRoute: (route: Route) => void;
-	export let handleRouteStatusChange: (route: Route) => void;
+	export let filteredRoutes: MockoonRoute[];
+	export let selectRoute: (route: MockoonRoute) => void;
+	export let handleRouteStatusChange: (route: MockoonRoute) => void;
 </script>
 
 <!-- Routes Section -->
@@ -40,15 +39,18 @@
 					role="button"
 				>
           <span class="text-sm font-bold truncate">
-            <strong>{route.method}</strong> {route.path.length > 30 ? route.path.slice(0, 30) + '...' : route.path}
+            <strong>{route.method}</strong> {route.endpoint.length > 30 ? route.endpoint.slice(0, 30) + '...' : route.endpoint}
           </span>
 					<button
 						class="text-white py-1 px-2 rounded flex items-center"
-						class:bg-green-500={route.status === 'enabled'}
+						class:bg-green-500={route.status === 'enabled' || !route.status}
 						class:bg-red-500={route.status === 'disabled'}
-						on:click|stopPropagation={() => handleRouteStatusChange(route)}
+						on:click|stopPropagation={() => {
+							if (!route.status) route.status = 'enabled';
+							handleRouteStatusChange(route);
+						}}
 					>
-						{#if route.status === 'enabled'}
+						{#if route.status === 'enabled' || !route.status}
 							<i class="fas fa-toggle-off mr-1"></i> Disable
 						{:else}
 							<i class="fas fa-toggle-on mr-1"></i> Enable

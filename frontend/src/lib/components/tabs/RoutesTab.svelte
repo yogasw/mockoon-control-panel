@@ -1,38 +1,40 @@
 <script lang="ts">
-	import DropdownSelectRoute from '$lib/components/tabs/routes/DropdownSelectRoute.svelte';
 	import StatusBodyTab from './routes/StatusBodyTab.svelte';
 	import HeadersTab from './routes/HeadersTab.svelte';
 	import RulesTab from './routes/RulesTab.svelte';
 	import CallbacksTab from './routes/CallbacksTab.svelte';
-	import type { Route } from '$lib/types/route';
-	import type { Config } from 'tailwindcss/types/config';
+	import type { MockoonResponse, MockoonRoute } from '$lib/types/Config';
 	import RoutesList from '$lib/components/tabs/routes/RoutesList.svelte';
+	import DropdownResponse from '$lib/components/tabs/routes/DropdownResponse.svelte';
+	import type { ConfigResponse } from '$lib/api/mockoonApi';
 
-	export let selectedConfig: Config;
-	export let routes: Route[];
+	export let selectedConfig: ConfigResponse;
+	export let routes: MockoonRoute[];
 	export let activeContentTab = 'Status & Body';
 	let activeConfigName = selectedConfig.name; // Store the active config name
 
-	let selectedRoute: Route | null = null;
-	let responseBody: string = '';
+	let selectedRoute: MockoonRoute | null = null;
+	let selectedResponse: MockoonResponse | null = null;
 	let filterText: string = ''; // Variable to store filter input
 
 	$: filteredRoutes = routes.filter(route => {
 		if (!filterText.trim()) return true;
 		const filterParts = filterText.toLowerCase().split(' ');
 		return filterParts.every(part =>
-			route.path.toLowerCase().includes(part) ||
+			route.endpoint.toLowerCase().includes(part) ||
 			route.method.toLowerCase().includes(part)
 		);
 	});
 
-	function selectRoute(route: Route) {
+	function selectRoute(route: MockoonRoute) {
+		console.log('Route selected:', route);
 		selectedRoute = route;
-		responseBody = route.responses[0]?.body || '';
+		selectedResponse = route.responses[0] || null; // Select the first response by default
 	}
 
-	function handleRouteStatusChange(route: Route) {
-		const index = routes.findIndex(r => r.path === route.path && r.method === route.method);
+	function handleRouteStatusChange(route: MockoonRoute) {
+		console.log('Route status changed:', route);
+		const index = routes.findIndex(r => r.endpoint === route.endpoint && r.method === route.method);
 		if (index !== -1) {
 			routes[index] = {
 				...route,
@@ -58,7 +60,8 @@
 		<div class="mb-4">
 			<label class="block text-sm font-bold mb-2">Endpoint</label>
 			<div class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-2">
-				<select class="w-full md:w-1/6 rounded bg-gray-700 px-4 py-2 text-white" value="{selectedRoute?.method}">
+				<select class="w-full md:w-1/6 rounded bg-gray-700 px-4 py-2 text-white"
+								value="{selectedRoute?.method.toUpperCase()}">
 					<option value="GET">GET</option>
 					<option value="POST">POST</option>
 					<option value="PUT">PUT</option>
@@ -67,12 +70,12 @@
 				</select>
 				<span class="text-gray-400 hidden md:block">{selectedConfig.url}/</span>
 				<input type="text" class="w-full md:flex-1 rounded bg-gray-700 px-4 py-2 text-white"
-							 value="{selectedRoute?.path}">
+							 value="{selectedRoute?.endpoint}">
 				<button
 					class="text-gray-400 hover:text-blue-500 disabled:text-gray-600"
 					disabled={!selectedRoute || selectedRoute?.method !== 'GET'}
 					on:click={() =>{
-						let url = `${selectedConfig.url}/${selectedRoute?.path ? selectedRoute.path : ''}`;
+						let url = `${selectedConfig.url}/${selectedRoute?.endpoint ? selectedRoute.endpoint : ''}`;
 						// Open the URL in a new tab
 						window.open(url, '_blank');
 					}}>
@@ -84,9 +87,9 @@
 		<label class="block text-sm font-bold mb-2">Documentation for this routes</label>
 		<textarea
 			class="w-full rounded bg-gray-700 px-4 py-2 text-white" rows="3"
-			placeholder="Provide a brief description or documentation for this endpoint"/>
+			placeholder="Provide a brief description or documentation for this endpoint" />
 
-		<DropdownSelectRoute />
+		<DropdownResponse bind:selectedRoute bind:selectedResponse />
 
 		<div class="flex space-x-2 mb-4">
 			{#each ["Status & Body", "Headers", "Rules", "Callbacks"] as tab}
@@ -108,13 +111,21 @@
 						{#if selectedRoute}
 							{#if activeContentTab === 'Status & Body'}
 								<StatusBodyTab
-									responseBody={responseBody}
-									statusCode={selectedRoute.responses[0]?.statusCode || 200}
-									onBodyChange={(val) => responseBody = val}
-									onStatusCodeChange={(val) => selectedRoute.responses[0].statusCode = val}
+									responseBody={selectedResponse?.body || ''}
+									statusCode={selectedResponse?.statusCode || 200}
+									onBodyChange={(val) => {
+											if (selectedResponse) {
+												selectedResponse.body = val;
+											}
+									}}
+									onStatusCodeChange={(val) => {
+										if (selectedResponse) {
+											selectedResponse.statusCode = val;
+										}
+									}}
 								/>
 							{:else if activeContentTab === 'Headers'}
-								<HeadersTab headers={selectedRoute.responses[0]?.headers} />
+								<HeadersTab headers={selectedResponse?.headers} />
 							{:else if activeContentTab === 'Rules'}
 								<RulesTab rules={[]} />
 							{:else if activeContentTab === 'Callbacks'}

@@ -7,7 +7,7 @@ interface AuthCredentials {
 	password: string;
 }
 
-export interface Config {
+export interface ConfigResponse {
 	uuid: string;
 	name: string;
 	configFile: string;
@@ -16,20 +16,6 @@ export interface Config {
 	size: string;
 	modified: string;
 	inUse: boolean;
-}
-
-interface Route {
-	path: string;
-	method: string;
-	status: 'enabled' | 'disabled';
-}
-
-interface Log {
-	method: string;
-	path: string;
-	timestamp: string;
-	request: string;
-	response: string;
 }
 
 // Create axios instance with default config
@@ -78,12 +64,12 @@ api.interceptors.response.use(
 	}
 );
 
-export const getMockStatus = async (): Promise<Config[]> => {
+export const getMockStatus = async (): Promise<ConfigResponse[]> => {
 	const response = await api.get('/status');
 	return response.data.data;
 };
 
-export const getConfigs = async (): Promise<Config[]> => {
+export const getConfigs = async (): Promise<ConfigResponse[]> => {
 	const response = await api.get('/configs');
 	return response.data.data;
 };
@@ -138,7 +124,7 @@ export const login = async (credentials: AuthCredentials): Promise<boolean> => {
 	return response.data.success;
 };
 
-export const getConfigDetails = async (uuid: string): Promise<Config> => {
+export const getConfigDetails = async (uuid: string): Promise<ConfigResponse> => {
 	const response = await api.get(`/configs/${uuid}`);
 	return response.data.data;
 };

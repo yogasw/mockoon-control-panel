@@ -5,149 +5,101 @@
 	import { downloadConfig } from '$lib/api/mockoonApi';
 	import { selectedConfig } from '$lib/stores/selectedConfig';
 	import { activeTab } from '$lib/stores/activeTab';
+	import type { MockoonRoute } from '$lib/types/Config';
 
-	interface Route {
-    path: string;
-    method: string;
-    status: 'enabled' | 'disabled';
-    responses: {
-      statusCode: number;
-      body: string;
-      headers: { key: string; value: string }[];
-    }[];
-  }
+	export let routes: MockoonRoute[] = [];
+	export let activeContentTab = 'Status & Body';
 
-  interface MockoonRoute {
-    uuid: string;
-    type: string;
-    documentation: string;
-    method: string;
-    endpoint: string;
-    responses: MockoonResponse[];
-  }
+	let loading = false;
+	let error = '';
 
-  interface MockoonResponse {
-    uuid: string;
-    body: string;
-    latency: number;
-    statusCode: number;
-    label: string;
-    headers: { key: string; value: string }[];
-    bodyType: string;
-    filePath: string;
-    databucketID: string;
-    sendFileAsBody: boolean;
-    rules: any[];
-    rulesOperator: string;
-    disableTemplating: boolean;
-    fallbackTo404: boolean;
-    default: boolean;
-    crudKey: string;
-    callbacks: any[];
-  }
+	async function loadConfigData() {
+		if (!$selectedConfig) return;
 
-  export let routes: Route[] = [];
-  export let activeContentTab = 'Status & Body';
+		loading = true;
+		try {
+			// Download config using the configFile name
+			const response = await downloadConfig($selectedConfig.configFile);
+			const configData = response.data;
 
-  let loading = false;
-  let error = '';
+			// Parse routes from config
+			routes = configData.routes;
+		} catch (err) {
+			console.error('Failed to load config data:', err);
+			error = 'Failed to load configuration data';
+		} finally {
+			loading = false;
+		}
+	}
 
-  async function loadConfigData() {
-    if (!$selectedConfig) return;
-
-    loading = true;
-    try {
-      // Download config using the configFile name
-      const response = await downloadConfig($selectedConfig.configFile);
-      const configData = response.data;
-
-      // Parse routes from config
-      routes = configData.routes.map((route: MockoonRoute) => ({
-        path: route.endpoint,
-        method: route.method.toUpperCase(),
-        status: 'enabled',
-        responses: route.responses.map((response: MockoonResponse) => ({
-          statusCode: response.statusCode,
-          body: response.body,
-          headers: response.headers
-        }))
-      }));
-    } catch (err) {
-      console.error('Failed to load config data:', err);
-      error = 'Failed to load configuration data';
-    } finally {
-      loading = false;
-    }
-  }
-
-  // Watch for selectedConfig changes
-  $: if ($selectedConfig) {
-    loadConfigData();
-  }
+	// Watch for selectedConfig changes
+	$: if ($selectedConfig) {
+		loadConfigData();
+	}
 </script>
 
 <div class="content-area">
-  {#if !$selectedConfig}
-    <div class="no-config-message">
-      <i class="fas fa-info-circle"></i>
-      <h2>No Configuration Selected</h2>
-      <p>Please select a configuration from the list to view its details.</p>
-    </div>
-  {:else if loading}
-    <div class="flex items-center justify-center h-full min-h-[300px]">
-      <div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
-  {:else if error}
-    <div class="text-red-500 text-center p-4">{error}</div>
-  {:else}
-    <div class="tab-content">
-      {#if $activeTab === 'routes'}
-        <RoutesTab selectedConfig={$selectedConfig} {routes} activeContentTab={activeContentTab} />
-      {:else if $activeTab === 'logs'}
-        <LogsTab selectedConfig={$selectedConfig} />
-      {:else if $activeTab === 'configuration'}
-        <ConfigurationTab selectedConfig={$selectedConfig} />
-      {/if}
-    </div>
-  {/if}
+	{#if !$selectedConfig}
+		<div class="no-config-message">
+			<i class="fas fa-info-circle"></i>
+			<h2>No Configuration Selected</h2>
+			<p>Please select a configuration from the list to view its details.</p>
+		</div>
+	{:else if loading}
+		<div class="flex items-center justify-center h-full min-h-[300px]">
+			<div class="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-blue-500"></div>
+		</div>
+	{:else if error}
+		<div class="text-red-500 text-center p-4">{error}</div>
+	{:else}
+		<div class="tab-content">
+			{#if $activeTab === 'routes'}
+				<RoutesTab selectedConfig={$selectedConfig} {routes} activeContentTab={activeContentTab} />
+			{:else if $activeTab === 'logs'}
+				<LogsTab selectedConfig={$selectedConfig} />
+			{:else if $activeTab === 'configuration'}
+				<ConfigurationTab selectedConfig={$selectedConfig} />
+			{/if}
+		</div>
+	{/if}
 </div>
 
 <style>
-  .content-area {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 1rem;
-  }
+    .content-area {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        padding: 1rem;
+    }
 
-  .tab-content {
-    flex: 1;
-    overflow-y: auto;
-  }
+    .tab-content {
+        flex: 1;
+        overflow-y: auto;
+    }
 
-  .no-config-message {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    text-align: center;
-    color: #64748b;
-  }
+    .no-config-message {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        text-align: center;
+        color: #64748b;
+    }
 
-  .no-config-message i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    color: #3b82f6;
-  }
+    .no-config-message i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: #3b82f6;
+    }
 
-  .no-config-message h2 {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-  }
+    .no-config-message h2 {
+        font-size: 1.5rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
 
-  .no-config-message p {
-    font-size: 1rem;
-  }
+    .no-config-message p {
+        font-size: 1rem;
+    }
 </style>
