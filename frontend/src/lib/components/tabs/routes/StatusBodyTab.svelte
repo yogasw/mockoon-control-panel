@@ -31,17 +31,17 @@
   </div>
 
   <div class="relative flex-grow w-full">
+    <button
+      on:click={formatContent}
+      class="absolute top-2 right-2 z-10 bg-green-600 text-white text-xs px-2 py-1 rounded hover:bg-green-700"
+    >
+      Prettify
+    </button>
     <MonacoEditor
       bind:this={editorRef}
       value={responseBody}
       language="json"
       on:change={handleEditorChange}
     />
-    <button
-      on:click={formatContent}
-      class="absolute top-2 right-2 bg-green-600 text-white text-xs px-2 py-1 rounded hover:bg-green-700"
-    >
-      Prettify
-    </button>
   </div>
 </div>

@@ -1,6 +1,14 @@
 <script lang="ts">
-	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
+	// reference https://dev.to/lawrencecchen/monaco-editor-svelte-kit-572
+	import { onMount, onDestroy, createEventDispatcher, afterUpdate } from 'svelte';
 	import type * as monacoType from 'monaco-editor';
+
+	// Worker setup (modern)
+	import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
+	import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
+	import cssWorker from 'monaco-editor/esm/vs/language/css/css.worker?worker';
+	import htmlWorker from 'monaco-editor/esm/vs/language/html/html.worker?worker';
+	import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 
 	export let value: string = '{}';
 	export let language: string = 'json';
@@ -11,43 +19,46 @@
 	let monaco: typeof monacoType | null = null;
 
 	const dispatch = createEventDispatcher();
+	let currentValue = value;
+	let isUpdating = false;
 
-	function loadMonaco(callback: (monaco: typeof monacoType) => void) {
-		if ((window as any).monaco) return callback((window as any).monaco);
-
-		if (!(window as any).require) {
-			const loader = document.createElement('script');
-			loader.src = 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs/loader.js';
-			loader.onload = () => {
-				(window as any).require.config({
-					paths: { vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.1/min/vs' }
-				});
-				(window as any).require(['vs/editor/editor.main'], () => {
-					callback((window as any).monaco);
-				});
-			};
-			document.body.appendChild(loader);
-		} else {
-			(window as any).require(['vs/editor/editor.main'], () => {
-				callback((window as any).monaco);
-			});
+	// Monaco Environment for workers
+	// @ts-ignore
+	self.MonacoEnvironment = {
+		getWorker: function (_: any, label: string) {
+			if (label === 'json') return new jsonWorker();
+			if (['css', 'scss', 'less'].includes(label)) return new cssWorker();
+			if (['html', 'handlebars', 'razor'].includes(label)) return new htmlWorker();
+			if (['typescript', 'javascript'].includes(label)) return new tsWorker();
+			return new editorWorker();
 		}
-	}
+	};
 
-	onMount(() => {
-		loadMonaco((m) => {
-			monaco = m;
-			editor = monaco.editor.create(container, {
-				value,
-				language,
-				theme,
-				automaticLayout: true,
-			});
-
-			editor.onDidChangeModelContent(() => {
-				dispatch('change', editor?.getValue());
-			});
+	onMount(async () => {
+		const m = await import('monaco-editor');
+		monaco = m;
+		editor = monaco.editor.create(container, {
+			value,
+			language,
+			theme,
+			automaticLayout: true
 		});
+
+		editor.onDidChangeModelContent(() => {
+			if (!isUpdating) {
+				currentValue = editor?.getValue() ?? '';
+				dispatch('change', currentValue);
+			}
+		});
+	});
+
+	afterUpdate(() => {
+		if (editor && value !== currentValue) {
+			isUpdating = true;
+			currentValue = value;
+			editor.setValue(value);
+			isUpdating = false;
+		}
 	});
 
 	onDestroy(() => {
@@ -55,7 +66,7 @@
 		editor = null;
 	});
 
-	// Public methods
+	// Public Methods
 	export function getValue(): string | undefined {
 		return editor?.getValue();
 	}
@@ -65,15 +76,14 @@
 	}
 
 	export function format(): void {
-		editor?.getAction('editor.action.formatDocument').run();
+		editor?.getAction('editor.action.formatDocument')?.run();
 	}
 
 	export function setLanguage(lang: string): void {
-		if (monaco && editor && editor.getModel()) {
+		if (monaco && editor?.getModel()) {
 			monaco.editor.setModelLanguage(editor.getModel()!, lang);
 		}
 	}
 </script>
 
-<!-- Container -->
 <div bind:this={container} class="w-full h-full"></div>
