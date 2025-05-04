@@ -60,7 +60,7 @@
 	}
 </script>
 
-<div class="flex flex-1 h-screen" style="height: 83.5vh;">
+<div class="flex flex-1 h-screen">
 	<!-- Routes Section -->
 	<div class="w-1/3 bg-gray-800 p-4 flex flex-col">
 		<div class="bg-gray-700 p-4 rounded mb-4 flex items-center">
