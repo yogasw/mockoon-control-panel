@@ -1,6 +1,9 @@
 <script lang="ts">
-	export let rules: any[] = [];
-	console.log("rules", rules);
+	import type { MockoonRule } from '$lib/types/Config';
+
+	export let rules: MockoonRule[] = [];
+	export let rulesOperator = 'OR'; // Default operator
+
 	let isModalVisible = false;
 	const disableAddButton = true;
 
@@ -21,6 +24,7 @@
 	}
 
 	function toggleLogic(button: any) {
+		if(disableAddButton) return
 		const buttons = document.querySelectorAll('.logic-button');
 		buttons.forEach((btn) => {
 			btn.classList.remove('text-blue-500', 'border-blue-500');
@@ -28,6 +32,11 @@
 		});
 		button.classList.remove('text-gray-400', 'border-gray-500');
 		button.classList.add('text-blue-500', 'border-blue-500');
+	}
+
+	//logs on component update
+	$: {
+		console.log('rules updated', rules);
 	}
 </script>
 <div class="bg-gray-800 rounded-lg w-full max-w-4xl">
@@ -43,44 +52,30 @@
 				</button>
 			</div>
 			<div class="space-y-4">
-				<!-- Rule 1 -->
-				<div class="flex items-center space-x-4 w-full">
-					<div class="w-1/6 text-gray-400">Body</div>
-					<input type="text" value="key1"
-								 class="bg-gray-600 text-white rounded px-2 py-1 w-full border border-gray-500" />
-					<button class="bg-gray-600 text-gray-400 rounded px-2 py-1 border border-gray-500">!</button>
-					<select class="bg-gray-600 text-white rounded px-2 py-1 w-1/6 border border-gray-500">
-						<option>equals</option>
-						<option>regex</option>
-						<option>regex (i)</option>
-						<option>null</option>
-						<option>empty array</option>
-					</select>
-					<input type="text" value="value1"
-								 class="bg-gray-600 text-white rounded px-2 py-1 w-full border border-gray-500" />
-					<button class="text-gray-400">
-						<i class="fas fa-trash"></i>
-					</button>
-				</div>
-				<!-- Rule 2 -->
-				<div class="flex items-center space-x-4 w-full">
-					<div class="w-1/6 text-gray-400">Query string</div>
-					<input type="text" value="key2"
-								 class="bg-gray-600 text-white rounded px-2 py-1 w-full border border-gray-500" />
-					<button class="bg-gray-600 text-gray-400 rounded px-2 py-1 border border-gray-500">!</button>
-					<select class="bg-gray-600 text-white rounded px-2 py-1 w-1/6 border border-gray-500">
-						<option>equals</option>
-						<option>regex</option>
-						<option>regex (i)</option>
-						<option>null</option>
-						<option>empty array</option>
-					</select>
-					<input type="text" value="value2"
-								 class="bg-gray-600 text-white rounded px-2 py-1 w-full border border-gray-500" />
-					<button class="text-gray-400">
-						<i class="fas fa-trash"></i>
-					</button>
-				</div>
+				{#each rules as rule, index}
+					<div class="flex items-center space-x-4 w-full">
+						<div class="w-1/6 text-gray-400">{rule.target}</div>
+						<input type="text" value="{rule.modifier}"
+									 class="bg-gray-600 text-white rounded px-2 py-1 w-full border border-gray-500" />
+						<button class="rounded px-2 py-1 border border-gray-500"
+										class:text-blue-500={rule.invert}
+										class:text-gray-400={!rule.invert}>!
+						</button>
+						<select class="bg-gray-600 text-white rounded px-2 py-1 w-1/6 border border-gray-500"
+										bind:value="{rule.operator}">
+							<option>equals</option>
+							<option>regex</option>
+							<option>regex (i)</option>
+							<option>null</option>
+							<option>empty array</option>
+						</select>
+						<input type="text" value="{rule.value}"
+									 class="bg-gray-600 text-white rounded px-2 py-1 w-full border border-gray-500" />
+						<button class="text-gray-400" class:hidden={disableAddButton}>
+							<i class="fas fa-trash"></i> Delete rule
+						</button>
+					</div>
+				{/each}
 			</div>
 			<button on:click={toggleModal} class="text-green-500 mt-4 flex items-center" class:hidden={disableAddButton}>
 				<i class="fas fa-plus-circle mr-2"></i> Add rule

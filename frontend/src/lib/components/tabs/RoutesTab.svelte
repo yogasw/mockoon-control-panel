@@ -127,7 +127,7 @@
 							{:else if activeContentTab === 'Headers'}
 								<HeadersTab headers={selectedResponse?.headers} />
 							{:else if activeContentTab === 'Rules'}
-								<RulesTab rules={[]} />
+								<RulesTab rules={selectedResponse?.rules} rulesOperator={selectedResponse?.rulesOperator} />
 							{:else if activeContentTab === 'Callbacks'}
 								<CallbacksTab callbacks={[]} />
 							{/if}
