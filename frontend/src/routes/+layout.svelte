@@ -135,19 +135,25 @@
 {#if isLoginPage || !$isAuthenticated}
 	<slot />
 {:else}
-	<div class="flex h-screen bg-gray-900 text-white font-sans">
-		<ConfigurationList
-			{searchTerm}
-			on:selectConfiguration={handleConfigSelect}
-			on:startConfiguration={handleConfigStart}
-			on:stopConfiguration={handleConfigStop}
-		/>
+	<div class="min-h-screen w-full bg-gray-900 text-white font-sans">
+		<div class="mmx-auto flex h-screen">
+			<ConfigurationList
+				{searchTerm}
+				on:selectConfiguration={handleConfigSelect}
+				on:startConfiguration={handleConfigStart}
+				on:stopConfiguration={handleConfigStop}
+			/>
 
-		<div class="flex-1 flex flex-col">
-			<Header on:tabChange={handleTabChange} handleLogout={handleLogout} />
-			<slot activeTab={activeTab} />
+			<div class="flex-1 flex flex-col overflow-hidden">
+				<Header on:tabChange={handleTabChange} handleLogout={handleLogout} />
+				<div class="flex-1 overflow-auto">
+					<slot activeTab={activeTab} />
+				</div>
+			</div>
+
 		</div>
 	</div>
+
 {/if}
 
 <Toast />

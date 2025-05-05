@@ -1,4 +1,4 @@
 import { writable } from 'svelte/store';
-import type { Config } from '$lib/api/mockoonApi';
+import type { ConfigResponse } from '$lib/api/mockoonApi';
 
-export const selectedConfig = writable<Config | null>(null); 
+export const selectedConfig = writable<ConfigResponse | null>(null);
