@@ -1,3 +1,24 @@
+## v4.3.0
+_Released on 
+
+### New Features
+1.  Integrated Monaco Editor for enhanced editing in StatusBodyTab.
+2.  Added save and fullscreen functionality to MonacoEditor in StatusBodyTab.
+3.  Enhanced RulesTab with modal for adding rules and improved UI elements.
+4.  Refactored RoutesTab to use RoutesList and DropdownSelectRoute components for improved structure and UI.
+5.  Added Config and Mockoon types for improved API structure and response handling.
+6.  Enhanced RulesTab to use MockoonRule type and improve rule handling with dynamic rendering.
+7.  Added documentation for Express Log Monitor with safe truncation and HTTP streaming API.
+
+### Improvements
+1.  Enhanced MonacoEditor with worker support and improved content formatting in StatusBodyTab.
+2.  Updated body class for improved styling and adjusted height in RoutesTab.
+3.  Updated RoutesList and RoutesTab for improved UI and functionality.
+4.  Added toast notification for unimplemented save feature in StatusBodyTab.
+
+### Bug Fixes
+1.  Fixed width and height over screen issues.
+
 ## v4.2.0
 _Released on 
 
