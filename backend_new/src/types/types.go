@@ -51,10 +51,12 @@ type MockInstance struct {
 
 // ConfigFile represents a configuration file
 type ConfigFile struct {
-	Name      string    `json:"name"`
-	Path      string    `json:"path"`
-	Size      int64     `json:"size"`
-	ModTime   time.Time `json:"modTime"`
-	IsRunning bool      `json:"isRunning"`
-	Port      int       `json:"port,omitempty"`
+	UUID       string    `json:"uuid,omitempty"`
+	Name       string    `json:"name"`
+	ConfigFile string    `json:"configFile"`
+	Port       int       `json:"port,omitempty"`
+	Size       string    `json:"size"`
+	Modified   time.Time `json:"modified"`
+	InUse      bool      `json:"inUse"`
+	URL        string    `json:"url,omitempty"`
 }

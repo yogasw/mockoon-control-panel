@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"encoding/json"
 	"errors"
 	"os"
 	"path/filepath"
@@ -51,12 +52,44 @@ func (r *FileRepository) ListConfigs() ([]types.ConfigFile, error) {
 			continue
 		}
 
+		// Read file content to get JSON data
+		filePath := filepath.Join(lib.CONFIGS_DIR, file.Name())
+		fileContent, err := os.ReadFile(filePath)
+		if err != nil {
+			continue
+		}
+
+		// Parse JSON to extract uuid, name and port
+		var fileData map[string]interface{}
+		if err := json.Unmarshal(fileContent, &fileData); err != nil {
+			continue
+		}
+
+		// Extract uuid, name and port
+		var uuid, name string
+		var port int
+
+		if val, ok := fileData["uuid"].(string); ok {
+			uuid = val
+		}
+		if val, ok := fileData["name"].(string); ok {
+			name = val
+		}
+		if val, ok := fileData["port"].(float64); ok {
+			port = int(val)
+		}
+
+		// Format file size as string (e.g., "1.2 KB")
+		sizeStr := utils.FormatFileSize(fileInfo.Size())
+
 		configs = append(configs, types.ConfigFile{
-			Name:      file.Name(),
-			Path:      filepath.Join(lib.CONFIGS_DIR, file.Name()),
-			Size:      fileInfo.Size(),
-			ModTime:   fileInfo.ModTime(),
-			IsRunning: false, // This will be updated elsewhere
+			UUID:       uuid,
+			Name:       name,
+			ConfigFile: file.Name(),
+			Port:       port,
+			Size:       sizeStr,
+			Modified:   fileInfo.ModTime(),
+			InUse:      false, // Will be updated elsewhere
 		})
 	}
 

@@ -36,7 +36,7 @@ func StatusMockHandler(c *gin.Context) {
 		if running {
 			for i := range configs {
 				if configs[i].Name == config.Name {
-					configs[i].IsRunning = true
+					configs[i].InUse = true
 					configs[i].Port = port
 					break
 				}
