@@ -3,6 +3,14 @@
 
 Mockoon Control Panel is a lightweight web-based interface that serves as an **intermediary** or **control panel** for managing the Mockoon CLI. This project does not function as a mock server itself but helps manage configurations and sync operations for Mockoon CLI in a user-friendly way.
 
+## Backend Implementations
+
+This project has two backend implementations:
+1. **TypeScript/Node.js** - Located in the `backend/` directory
+2. **Go with Gin Gonic** - Located in the `backend_new/` directory 
+
+The Go implementation is a complete rewrite of the TypeScript backend, offering the same functionality with improved performance and memory usage.
+
 ---
 
 ## 🚀 Key Feature: Automatic Proxy Routing with Traefik
